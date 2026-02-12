@@ -1,0 +1,281 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if not has_data %}
+  <!-- Empty state: no data -->
+  <div class="empty-state">
+    <h2>Sin datos aún. Ejecutá el pipeline para empezar.</h2>
+    <div class="hint">python runner.py</div>
+  </div>
+{% else %}
+
+<div class="card-grid">
+
+  <!-- ═══ CHAIN STATE BAR ═══ -->
+  <div class="card span-full delay-0">
+    <div class="chain-bar">
+      {% for layer in chain %}
+      <div class="chain-segment">
+        <div class="chain-layer">
+          <div class="chain-layer-head">
+            <div class="chain-dot chain-dot-{{ layer.status }}"></div>
+            <span class="chain-layer-name">{{ layer.layer_name }}</span>
+          </div>
+          <span class="chain-layer-label chain-label-{{ layer.status }}">{{ layer.label }}</span>
+          <div class="chain-tooltip">{{ layer.description }}</div>
+        </div>
+        {% if not loop.last %}
+        <svg class="chain-arrow" width="24" height="8">
+          <line x1="2" y1="4" x2="17" y2="4" stroke="#E6E0D8" stroke-width="1" stroke-dasharray="2 2"/>
+          <polygon points="18,1.5 23,4 18,6.5" fill="#E6E0D8"/>
+        </svg>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ═══ FX RATES ═══ -->
+  <div class="card delay-1">
+    <div class="card-accent card-accent-dulce"></div>
+    <div class="card-head">
+      <span class="card-title">USD / ARS</span>
+      <span class="card-badge">T3</span>
+    </div>
+    {% if fx.oficial %}
+    <div class="data-row">
+      <span class="label">Oficial</span>
+      <div class="values">
+        <span class="value">$ {{ fx.oficial|fmt_ar }}</span>
+        <span class="change change-null">—</span>
+      </div>
+    </div>
+    <div class="data-row">
+      <span class="label">Blue</span>
+      <div class="values">
+        <span class="value">$ {{ fx.blue|fmt_ar }}</span>
+        {% if fx.blue_change is not none %}
+          <span class="change {% if fx.blue_change > 0 %}change-up{% elif fx.blue_change < 0 %}change-down{% else %}change-flat{% endif %}">
+            {% if fx.blue_change > 0 %}↑{% elif fx.blue_change < 0 %}↓{% else %}—{% endif %} {{ fx.blue_change|abs|fmt_ar(1) }}%
+          </span>
+        {% else %}
+          <span class="change change-null">—</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="data-row">
+      <span class="label">MEP</span>
+      <div class="values">
+        <span class="value">$ {{ fx.mep|fmt_ar }}</span>
+        {% if fx.mep_change is not none %}
+          <span class="change {% if fx.mep_change > 0 %}change-up{% elif fx.mep_change < 0 %}change-down{% else %}change-flat{% endif %}">
+            {% if fx.mep_change > 0 %}↑{% elif fx.mep_change < 0 %}↓{% else %}—{% endif %} {{ fx.mep_change|abs|fmt_ar(1) }}%
+          </span>
+        {% else %}
+          <span class="change change-null">—</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="data-row">
+      <span class="label">CCL</span>
+      <div class="values">
+        <span class="value">$ {{ fx.ccl|fmt_ar }}</span>
+        {% if fx.ccl_change is not none %}
+          <span class="change {% if fx.ccl_change > 0 %}change-up{% elif fx.ccl_change < 0 %}change-down{% else %}change-flat{% endif %}">
+            {% if fx.ccl_change > 0 %}↑{% elif fx.ccl_change < 0 %}↓{% else %}—{% endif %} {{ fx.ccl_change|abs|fmt_ar(1) }}%
+          </span>
+        {% else %}
+          <span class="change change-null">—</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-divider">
+      <div class="data-row">
+        <span class="label">Brecha</span>
+        <div class="values">
+          <span class="value">{{ fx.brecha|fmt_ar(1) }}%</span>
+          {% if fx.brecha_change is not none %}
+            <span class="change {% if fx.brecha_change > 0 %}change-up{% elif fx.brecha_change < 0 %}change-down{% else %}change-flat{% endif %}">
+              {% if fx.brecha_change > 0 %}↑{% elif fx.brecha_change < 0 %}↓{% else %}—{% endif %} {{ fx.brecha_change|abs|fmt_ar(1) }} pp
+            </span>
+          {% else %}
+            <span class="change change-null">—</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div style="color: var(--ink); opacity: 0.5; font-size: 13px;">Datos no disponibles · dolarhoy.com</div>
+    {% endif %}
+    <div class="card-source">dolarhoy.com · {{ date }}</div>
+  </div>
+
+  <!-- ═══ RESERVES ═══ -->
+  <div class="card delay-2">
+    <div class="card-accent card-accent-terra"></div>
+    <div class="card-head">
+      <span class="card-title">Reservas Internacionales</span>
+      <span class="card-badge">T1</span>
+    </div>
+    {% if reserves.value %}
+    <div class="big-number mono">
+      USD {{ reserves.value|fmt_ar(0) }} <span class="unit">M</span>
+    </div>
+    <div class="big-number-sub">
+      {% if reserves.change is not none %}
+        <span class="change {% if reserves.change > 0 %}change-up{% elif reserves.change < 0 %}change-down{% else %}change-flat{% endif %}">
+          {% if reserves.change > 0 %}↑{% elif reserves.change < 0 %}↓{% else %}—{% endif %} {{ reserves.change|abs|fmt_ar(0) }}
+        </span>
+      {% endif %}
+      <span class="vs body">vs ayer</span>
+    </div>
+    <div class="sparkline-container" data-sparkline='{{ reserves.sparkline|to_json }}' data-color="#C17F59" data-width="220" data-height="50"></div>
+    {% else %}
+    <div style="color: var(--ink); opacity: 0.5; font-size: 13px;">Datos no disponibles · BCRA</div>
+    {% endif %}
+    <div class="card-source">BCRA · {{ date }}</div>
+  </div>
+
+  <!-- ═══ YIELDS ═══ -->
+  <div class="card delay-3">
+    <div class="card-accent card-accent-sage"></div>
+    <div class="card-head">
+      <span class="card-title">US Treasury Yields</span>
+      <span class="card-badge">T1</span>
+    </div>
+    {% if yields.y2 is not none %}
+    <div class="data-row">
+      <span class="label">2Y</span>
+      <div class="values">
+        <span class="value">{{ yields.y2|fmt_ar }}%</span>
+        {% if yields.y2_change is not none %}
+          <span class="change {% if yields.y2_change > 0 %}change-up{% elif yields.y2_change < 0 %}change-down{% else %}change-flat{% endif %}">
+            {% if yields.y2_change > 0 %}↑{% elif yields.y2_change < 0 %}↓{% else %}—{% endif %} {{ yields.y2_change|abs|fmt_ar(0) }} bps
+          </span>
+        {% else %}
+          <span class="change change-null">—</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="data-row">
+      <span class="label">10Y</span>
+      <div class="values">
+        <span class="value">{{ yields.y10|fmt_ar }}%</span>
+        {% if yields.y10_change is not none %}
+          <span class="change {% if yields.y10_change > 0 %}change-up{% elif yields.y10_change < 0 %}change-down{% else %}change-flat{% endif %}">
+            {% if yields.y10_change > 0 %}↑{% elif yields.y10_change < 0 %}↓{% else %}—{% endif %} {{ yields.y10_change|abs|fmt_ar(0) }} bps
+          </span>
+        {% else %}
+          <span class="change change-null">—</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="data-row">
+      <span class="label">30Y</span>
+      <div class="values">
+        <span class="value">{{ yields.y30|fmt_ar }}%</span>
+        {% if yields.y30_change is not none %}
+          <span class="change {% if yields.y30_change > 0 %}change-up{% elif yields.y30_change < 0 %}change-down{% else %}change-flat{% endif %}">
+            {% if yields.y30_change > 0 %}↑{% elif yields.y30_change < 0 %}↓{% else %}—{% endif %} {{ yields.y30_change|abs|fmt_ar(0) }} bps
+          </span>
+        {% else %}
+          <span class="change change-null">—</span>
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-divider">
+      <div class="data-row">
+        <span class="label">2s10s</span>
+        <div class="values">
+          <span class="value">{{ yields.spread|fmt_ar(0) }} bps</span>
+          {% if yields.spread_change is not none %}
+            <span class="change {% if yields.spread_change > 0 %}change-up{% elif yields.spread_change < 0 %}change-down{% else %}change-flat{% endif %}">
+              {% if yields.spread_change > 0 %}↑{% elif yields.spread_change < 0 %}↓{% else %}—{% endif %} {{ yields.spread_change|abs|fmt_ar(0) }} bps
+            </span>
+          {% else %}
+            <span class="change change-null">—</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div style="margin-top: 12px;">
+      <div class="sparkline-container" data-sparkline='{{ yields.sparkline|to_json }}' data-color="#8B9E82" data-width="220" data-height="42"></div>
+    </div>
+    {% else %}
+    <div style="color: var(--ink); opacity: 0.5; font-size: 13px;">Datos no disponibles · FRED</div>
+    {% endif %}
+    <div class="card-source">FRED · {{ date }}</div>
+  </div>
+
+  <!-- ═══ BRECHA ═══ -->
+  <div class="card span-left delay-4">
+    <div class="card-accent card-accent-dulce"></div>
+    <div class="card-head">
+      <span class="card-title">Brecha Blue / Oficial</span>
+    </div>
+    {% if fx.brecha is not none %}
+    <div style="display: flex; align-items: baseline; gap: 4px;">
+      <span class="brecha-number mono">{{ fx.brecha|fmt_ar(1) }}</span>
+      <span class="brecha-pct mono">%</span>
+    </div>
+    <div class="brecha-sub">
+      {% if fx.brecha_change is not none %}
+        <span class="change {% if fx.brecha_change > 0 %}change-up{% elif fx.brecha_change < 0 %}change-down{% else %}change-flat{% endif %}">
+          {% if fx.brecha_change > 0 %}↑{% elif fx.brecha_change < 0 %}↓{% else %}—{% endif %} {{ fx.brecha_change|abs|fmt_ar(1) }} pp
+        </span>
+      {% endif %}
+      <span class="vs body">vs ayer</span>
+    </div>
+    <div class="sparkline-container" data-sparkline='{{ brecha_sparkline|to_json }}' data-color="#D4A574" data-width="340" data-height="75"></div>
+    <div class="sparkline-labels">
+      <span>Dic</span><span>Ene</span><span>Feb</span>
+    </div>
+    {% else %}
+    <div style="color: var(--ink); opacity: 0.5; font-size: 13px;">Datos no disponibles</div>
+    {% endif %}
+  </div>
+
+  <!-- ═══ CHANGES ═══ -->
+  <div class="card span-right delay-5">
+    <div class="card-accent card-accent-cafe"></div>
+    <div class="card-head">
+      <span class="card-title">Cambios vs Ayer</span>
+    </div>
+    {% for c in changes %}
+    <div class="change-item">
+      {% if c.type == 'up' %}
+        <span class="change-icon change-icon-up">↑</span>
+      {% elif c.type == 'dn' %}
+        <span class="change-icon change-icon-dn">↓</span>
+      {% elif c.type == 'rg' %}
+        <span class="change-icon change-icon-rg">◆</span>
+      {% else %}
+        <span class="change-icon change-icon-eq">—</span>
+      {% endif %}
+      <span class="body" style="font-size: 13px; color: var(--choc); line-height: 1.35;">
+        <span class="change-label">{{ c.label }}</span>
+        <span class="change-detail mono">{{ c.detail }}</span>
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ═══ BRIEF PREVIEW ═══ -->
+  <div class="card span-full delay-6">
+    <div class="card-head">
+      <span class="card-title">Resumen del Día</span>
+    </div>
+    {% if brief %}
+    <div class="brief-text body">{{ brief|safe }}</div>
+    <div class="brief-footer">
+      <a href="{{ url_for('brief') }}" class="brief-link body">Leer completo →</a>
+      <span class="brief-time mono">{{ date }} 18:00</span>
+    </div>
+    {% else %}
+    <div style="color: var(--ink); opacity: 0.5; font-size: 13px;">Brief no disponible</div>
+    {% endif %}
+  </div>
+
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,81 @@
+{
+  "benchmark_date": "2026-02-12",
+  "primary_benchmark": {
+    "name": "Bull Market Brokers",
+    "type": "ALyC (Broker)",
+    "cnv_number": 247,
+    "byma_member": 200,
+    "urls": {
+      "main": "https://www.bullmarketbrokers.com/",
+      "new_platform": "https://bullmarket.com.ar/",
+      "help": "https://help.bullmarketbrokers.com/",
+      "us_arm": "https://bullmarketus.com/"
+    },
+    "strengths": [
+      "Order book transparency (caja de puntas 5 levels by default)",
+      "Temporal relevance for licitaciones (dedicated primary market section)",
+      "Unified ARG+US view from single account",
+      "MEP en un Click abstraction of complex dollar operation",
+      "Tabular numeral alignment for price scanning",
+      "TradingView chart integration"
+    ],
+    "weaknesses": [
+      "No macro context overlay (price without WHY)",
+      "Legacy UX in some sections (2010-era forms)",
+      "Mobile table scaling requires horizontal scroll",
+      "No causal chain visualization",
+      "No source credibility layer"
+    ],
+    "data_conventions": {
+      "price_format": "Argentine (dot thousands, comma decimals)",
+      "variation_colors": {
+        "positive": "#27ae60",
+        "negative": "#e74c3c"
+      },
+      "settlement_terms": [
+        "CI (contado inmediato)",
+        "24hs"
+      ],
+      "cedear_ratio_displayed": true,
+      "order_book_depth": 5,
+      "chart_provider": "TradingView"
+    }
+  },
+  "competitors": [
+    {
+      "name": "Cocos Capital",
+      "edge": "Superior mobile UX, zero-commission, Robinhood of Argentina",
+      "weakness": "Lacks professional data depth"
+    },
+    {
+      "name": "PPI (Portfolio Personal)",
+      "edge": "Gold standard for fixed income, best bond calculators and debt map",
+      "weakness": "Less accessible for beginners"
+    },
+    {
+      "name": "Balanz",
+      "edge": "High-touch advisor model, cleaner UI",
+      "weakness": "Hides complexity that power users prefer"
+    },
+    {
+      "name": "IOL (InvertirOnline)",
+      "edge": "Large user base, established brand",
+      "weakness": "Platform feels dated"
+    },
+    {
+      "name": "Rava Bursátil",
+      "edge": "Free real-time data, widely used as reference",
+      "weakness": "Not a full broker, data presentation basic"
+    }
+  ],
+  "design_differentiation": {
+    "our_goal": "Intelligence and correlation",
+    "their_goal": "Execution and trading",
+    "our_data_scope": "Causal chains (Global -> Local)",
+    "their_data_scope": "Isolated tickers",
+    "our_aesthetic": "Café con Leche (warm, calm, focused)",
+    "their_aesthetic": "High-stakes red / industrial fintech",
+    "our_speed_metric": "Cognitive speed (understanding WHY)",
+    "their_speed_metric": "Execution speed (placing orders fast)"
+  }
+}

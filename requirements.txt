@@ -1,0 +1,6 @@
+Flask
+Markdown
+requests
+beautifulsoup4
+pandas
+python-dotenv

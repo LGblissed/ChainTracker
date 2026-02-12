@@ -1,0 +1,8 @@
+{
+  "password": "",
+  "cookie_secret": "",
+  "app_name": "Chain Tracker",
+  "app_subtitle": "Argentina · Macro Intelligence",
+  "port": 5000,
+  "users": ["Lau", "Marcos", "Caro", "Tomás"]
+}

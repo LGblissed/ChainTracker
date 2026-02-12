@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chain Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cafe.css') }}">
+</head>
+<body>
+  <div class="login-page">
+    <div class="login-ambient"></div>
+    <div class="login-grain"></div>
+
+    <div class="login-box" id="loginBox">
+      <h1 class="login-title display">Chain Tracker</h1>
+      <p class="login-subtitle body">Argentina · Macro Intelligence</p>
+
+      <!-- Step 1: Password -->
+      <div id="stepPassword" style="animation: fadeSlideUp 0.5s ease">
+        <div class="login-input-group">
+          <input
+            type="password"
+            id="inputPassword"
+            class="login-input login-input-pw mono"
+            placeholder="contraseña"
+            autocomplete="off"
+          >
+          <button class="login-submit-pw" id="btnPassword">→</button>
+        </div>
+        <p class="login-hint">acceso restringido</p>
+      </div>
+
+      <!-- Step 2: Name (hidden initially) -->
+      <div id="stepName" style="display: none">
+        <p class="login-name-prompt">¿Cómo te llamamos acá adentro?</p>
+        <div class="login-input-group">
+          <input
+            type="text"
+            id="inputName"
+            class="login-input login-input-name body"
+            placeholder="tu nombre"
+            maxlength="20"
+            autocomplete="off"
+          >
+          <button class="login-submit-name" id="btnName">Entrar</button>
+        </div>
+        <p class="login-hint" style="margin-top: 20px; letter-spacing: 0.06em">
+          este nombre aparece en tus posts
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const box = document.getElementById('loginBox');
+      const stepPw = document.getElementById('stepPassword');
+      const stepName = document.getElementById('stepName');
+      const inputPw = document.getElementById('inputPassword');
+      const inputName = document.getElementById('inputName');
+      const btnPw = document.getElementById('btnPassword');
+      const btnName = document.getElementById('btnName');
+
+      // Focus password input on load
+      inputPw.focus();
+
+      // ── Password submit ──
+      function submitPassword() {
+        const pw = inputPw.value;
+        if (!pw) return;
+
+        fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'password', password: pw })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            // Transition to name step
+            box.classList.add('transitioning');
+            setTimeout(() => {
+              stepPw.style.display = 'none';
+              stepName.style.display = 'block';
+              stepName.style.animation = 'fadeSlideUp 0.5s ease';
+              box.classList.remove('transitioning');
+              setTimeout(() => inputName.focus(), 300);
+            }, 450);
+          } else {
+            // Shake
+            stepPw.style.animation = 'shake 0.4s ease';
+            inputPw.value = '';
+            inputPw.focus();
+            setTimeout(() => { stepPw.style.animation = ''; }, 500);
+          }
+        });
+      }
+
+      btnPw.addEventListener('click', submitPassword);
+      inputPw.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitPassword();
+      });
+
+      // ── Name submit ──
+      function submitName() {
+        const name = inputName.value.trim();
+        if (name.length < 2) return;
+
+        fetch('/api/auth', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'name', name: name })
+        })
+        .then(r => r.json())
+        .then(data => {
+          if (data.ok) {
+            window.location.href = '/';
+          }
+        });
+      }
+
+      btnName.addEventListener('click', submitName);
+      inputName.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') submitName();
+      });
+    })();
+  </script>
+</body>
+</html>

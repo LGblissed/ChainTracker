@@ -1,0 +1,236 @@
+[
+  {
+    "analyst_id": "christian_buteler",
+    "name": "Christian Buteler",
+    "specialty": [
+      "monetary",
+      "inflation",
+      "brecha"
+    ],
+    "background": "Independent analyst with extensive local financial consultancy track record.",
+    "methodology_visibility": "high",
+    "known_bias": "Low controversy, data-driven pragmatism.",
+    "platforms": [
+      "x",
+      "media",
+      "daily_data_threads"
+    ],
+    "affiliation": "Independent Analyst",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "salvador_vitelli",
+    "name": "Salvador Vitelli",
+    "specialty": [
+      "agricultural_macro_linkage",
+      "cosecha_fx",
+      "sovereign_debt"
+    ],
+    "background": "Head of Research at Romano Group.",
+    "methodology_visibility": "high",
+    "known_bias": null,
+    "platforms": [
+      "x",
+      "media",
+      "source_chart_threads"
+    ],
+    "affiliation": "Romano Group",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "ariel_sbdar",
+    "name": "Ariel Sbdar",
+    "specialty": [
+      "market_microstructure",
+      "mep_ccl_flows",
+      "retail_sentiment"
+    ],
+    "background": "Cocos Capital founder, former trader (ex-Allaria, ex-NY).",
+    "methodology_visibility": "high",
+    "known_bias": "Commercial bias (owns an ALyC).",
+    "platforms": [
+      "x",
+      "media",
+      "market_realtime_comments"
+    ],
+    "affiliation": "Cocos Capital",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "fernando_marull",
+    "name": "Fernando Marull",
+    "specialty": [
+      "macro_strategy"
+    ],
+    "background": "FMyA Director, ex-Min. Hacienda (Dujovne team).",
+    "methodology_visibility": "high",
+    "known_bias": null,
+    "platforms": [
+      "reports",
+      "x",
+      "media"
+    ],
+    "affiliation": "FMyA",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "sebastian_menescaldi",
+    "name": "Sebastián Menescaldi",
+    "specialty": [
+      "monetary",
+      "inflation"
+    ],
+    "background": "Eco Go Director, ex-BCRA.",
+    "methodology_visibility": "high",
+    "known_bias": null,
+    "platforms": [
+      "reports",
+      "x",
+      "media"
+    ],
+    "affiliation": "Eco Go",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "luciano_cohan",
+    "name": "Luciano Cohan",
+    "specialty": [
+      "data_science",
+      "macro"
+    ],
+    "background": "Alphacast co-founder, ex-Subsec. Programming.",
+    "methodology_visibility": "extreme",
+    "known_bias": null,
+    "platforms": [
+      "alphacast",
+      "x",
+      "reports"
+    ],
+    "affiliation": "Alphacast",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "ramiro_tosi",
+    "name": "Ramiro Tosi",
+    "specialty": [
+      "sovereign_debt",
+      "auction_mechanics"
+    ],
+    "background": "Sovereign debt specialist, ex-Subsec. Finance.",
+    "methodology_visibility": "high",
+    "known_bias": null,
+    "platforms": [
+      "x",
+      "media",
+      "technical_threads"
+    ],
+    "affiliation": null,
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "andres_borenstein",
+    "name": "Andrés Borenstein",
+    "specialty": [
+      "macro",
+      "international"
+    ],
+    "background": "Econviews Associate, ex-BTG Pactual, ex-British Embassy.",
+    "methodology_visibility": "medium",
+    "known_bias": "High-level consensus synthesis via podcast/reports.",
+    "platforms": [
+      "podcasts",
+      "reports",
+      "media"
+    ],
+    "affiliation": "Econviews",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "nadin_arganaraz",
+    "name": "Nadín Argañaraz",
+    "specialty": [
+      "fiscal_policy"
+    ],
+    "background": "IARAF Director.",
+    "methodology_visibility": "high",
+    "known_bias": "Tax burden and spending cascada focus.",
+    "platforms": [
+      "reports",
+      "media",
+      "x"
+    ],
+    "affiliation": "IARAF",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "gabriel_caamano",
+    "name": "Gabriel Caamaño",
+    "specialty": [
+      "macro",
+      "agro"
+    ],
+    "background": "Consultora Ledesma.",
+    "methodology_visibility": "medium",
+    "known_bias": "FX brecha and agro-dollars focus.",
+    "platforms": [
+      "reports",
+      "x",
+      "media"
+    ],
+    "affiliation": "Consultora Ledesma",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "gustavo_neffa",
+    "name": "Gustavo Neffa",
+    "specialty": [
+      "markets",
+      "adrs"
+    ],
+    "background": "Research for Traders, ex-BBVA, ex-Macro.",
+    "methodology_visibility": "high",
+    "known_bias": "Quantitative ADR/CEDEAR parity focus.",
+    "platforms": [
+      "reports",
+      "x",
+      "media"
+    ],
+    "affiliation": "Research for Traders",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "dante_sica",
+    "name": "Dante Sica",
+    "specialty": [
+      "industry",
+      "regulatory"
+    ],
+    "background": "ABECEB Director, ex-Minister of Production.",
+    "methodology_visibility": "medium",
+    "known_bias": "Real economy and regulatory impact focus.",
+    "platforms": [
+      "reports",
+      "media",
+      "interviews"
+    ],
+    "affiliation": "ABECEB",
+    "accuracy_log": []
+  },
+  {
+    "analyst_id": "david_kubacki",
+    "name": "David Kubacki",
+    "specialty": [
+      "international"
+    ],
+    "background": "LATAM Strategy at global banks (via public notes).",
+    "methodology_visibility": "low",
+    "known_bias": "Usually behind paywalls; public quotes are partial signal.",
+    "platforms": [
+      "institutional_notes",
+      "public_quotes",
+      "media"
+    ],
+    "affiliation": null,
+    "accuracy_log": []
+  }
+]

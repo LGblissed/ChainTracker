@@ -1,0 +1,630 @@
+[
+  {
+    "source_id": "fred_us_yields",
+    "name": "FRED (St. Louis Fed)",
+    "url": "https://fred.stlouisfed.org/series/DGS10",
+    "layer": 1,
+    "data_points": [
+      "us_2y_yield",
+      "us_10y_yield",
+      "us_30y_yield"
+    ],
+    "frequency": "daily",
+    "format": "api_json",
+    "credibility_tier": "T1",
+    "api_available": true,
+    "scrape_required": false,
+    "known_bias": null,
+    "active": true,
+    "puller_module": "pullers.us_yields.USYieldsPuller",
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "cme_fedwatch",
+    "name": "CME FedWatch",
+    "url": "https://www.cmegroup.com/markets/interest-rates/fedwatch-tool.html",
+    "layer": 1,
+    "data_points": [
+      "fed_rate_probabilities"
+    ],
+    "frequency": "realtime",
+    "format": "scrape",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "investing_commodities",
+    "name": "Investing.com Commodities",
+    "url": "https://www.investing.com/commodities/real-time-futures",
+    "layer": 1,
+    "data_points": [
+      "soy_futures",
+      "corn_futures",
+      "wheat_futures",
+      "crude_futures"
+    ],
+    "frequency": "realtime",
+    "format": "scrape",
+    "credibility_tier": "T2",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Vendor aggregation and display-latency risk.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "marketwatch_dxy",
+    "name": "MarketWatch DXY",
+    "url": "https://www.marketwatch.com/investing/index/dxy",
+    "layer": 1,
+    "data_points": [
+      "dxy_index"
+    ],
+    "frequency": "realtime",
+    "format": "scrape",
+    "credibility_tier": "T2",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Display-level updates can lag exchange data.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "cboe_vix",
+    "name": "CBOE VIX",
+    "url": "https://www.cboe.com/tradable_products/vix/",
+    "layer": 1,
+    "data_points": [
+      "vix_index"
+    ],
+    "frequency": "realtime",
+    "format": "scrape",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "iif_em_flows",
+    "name": "IIF EM Flows",
+    "url": "https://www.iif.com/Research/Capital-Flows",
+    "layer": 1,
+    "data_points": [
+      "em_portfolio_flows"
+    ],
+    "frequency": "monthly",
+    "format": "pdf",
+    "credibility_tier": "T2",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": "Institutional methodology assumptions.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "treasurydirect_auctions",
+    "name": "TreasuryDirect",
+    "url": "https://www.treasurydirect.gov/auctions/upcoming/",
+    "layer": 1,
+    "data_points": [
+      "us_auction_calendar",
+      "us_auction_results"
+    ],
+    "frequency": "daily",
+    "format": "api_json",
+    "credibility_tier": "T1",
+    "api_available": true,
+    "scrape_required": false,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "cme_soybeans",
+    "name": "CME Soybeans",
+    "url": "https://www.cmegroup.com/markets/agriculture/oilseeds/soybean.quotes.html",
+    "layer": 1,
+    "data_points": [
+      "soybeans_front_month_price"
+    ],
+    "frequency": "realtime",
+    "format": "scrape",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "cme_corn",
+    "name": "CME Corn",
+    "url": "https://www.cmegroup.com/markets/agriculture/grains/corn.quotes.html",
+    "layer": 1,
+    "data_points": [
+      "corn_front_month_price"
+    ],
+    "frequency": "realtime",
+    "format": "scrape",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "bcra_reserves",
+    "name": "BCRA (Main Variables)",
+    "url": "https://www.bcra.gob.ar/",
+    "layer": 2,
+    "data_points": [
+      "reservas_internacionales_usd_mm",
+      "base_monetaria_ars_mm",
+      "country_risk"
+    ],
+    "frequency": "daily",
+    "format": "html_table",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Official publication lag/revision risk.",
+    "active": true,
+    "puller_module": "pullers.bcra_reserves.BCRAReservesPuller",
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "invenomica_embi",
+    "name": "Invenómica EMBI",
+    "url": "https://www.invenomica.com.ar/",
+    "layer": 2,
+    "data_points": [
+      "argentina_embi_plus"
+    ],
+    "frequency": "daily",
+    "format": "scrape",
+    "credibility_tier": "T3",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Secondary relay of primary EMBI values.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "ciara_cec",
+    "name": "CIARA-CEC",
+    "url": "https://www.ciaracec.com.ar/",
+    "layer": 2,
+    "data_points": [
+      "grain_export_liquidation_usd"
+    ],
+    "frequency": "weekly",
+    "format": "pdf",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "imf_argentina",
+    "name": "IMF Argentina",
+    "url": "https://www.imf.org/en/Countries/ARG",
+    "layer": 2,
+    "data_points": [
+      "staff_reports",
+      "review_dates"
+    ],
+    "frequency": "irregular",
+    "format": "pdf",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": "Institutional model assumptions.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "indec_trade",
+    "name": "INDEC ICA",
+    "url": "https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-2-40",
+    "layer": 2,
+    "data_points": [
+      "trade_balance_usd",
+      "exports_usd",
+      "imports_usd"
+    ],
+    "frequency": "monthly",
+    "format": "xls",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": "Publication lag and revisions.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "indec_inflation",
+    "name": "INDEC (IPC)",
+    "url": "https://www.indec.gob.ar/indec/web/Nivel4-Tema-3-5-31",
+    "layer": 3,
+    "data_points": [
+      "ipc_nacional_mom",
+      "ipc_nacional_yoy"
+    ],
+    "frequency": "monthly",
+    "format": "xls",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": "Historical credibility concerns require cross-checking.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "bcra_rem",
+    "name": "BCRA REM",
+    "url": "https://www.bcra.gob.ar/PublicacionesEstadisticas/Relevamiento_Expectativas_de_Mercado.asp",
+    "layer": 3,
+    "data_points": [
+      "rem_inflation_expectations",
+      "rem_gdp_expectations",
+      "rem_fx_expectations"
+    ],
+    "frequency": "monthly",
+    "format": "xls",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": "Consensus anchoring risk.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "hacienda_fiscal",
+    "name": "Secretaría de Hacienda",
+    "url": "https://www.argentina.gob.ar/hacienda/transparencia/ejecucion-presupuestaria",
+    "layer": 3,
+    "data_points": [
+      "primary_fiscal_balance_ars",
+      "financial_fiscal_balance_ars"
+    ],
+    "frequency": "monthly",
+    "format": "csv",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": "Official release framing risk.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "finanzas_auctions",
+    "name": "Sec. Finanzas",
+    "url": "https://www.argentina.gob.ar/hacienda/finanzas/licitaciones",
+    "layer": 3,
+    "data_points": [
+      "lecap_auction_results",
+      "lecer_auction_results"
+    ],
+    "frequency": "irregular",
+    "format": "pdf",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "ipc_online_bb",
+    "name": "IPC Online (Bahía Blanca)",
+    "url": "https://ipconlinebb.wordpress.com/",
+    "layer": 3,
+    "data_points": [
+      "ipc_online_bb_cpi"
+    ],
+    "frequency": "monthly",
+    "format": "html_table",
+    "credibility_tier": "T4",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Private methodology/sampling risk.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "cyt_asesores",
+    "name": "C&T Asesores",
+    "url": "https://www.cyt-asesores.com.ar/",
+    "layer": 3,
+    "data_points": [
+      "cyt_private_cpi"
+    ],
+    "frequency": "monthly",
+    "format": "pdf",
+    "credibility_tier": "T4",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": "Private coverage and methodology bias risk.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "mae_fx_bonds",
+    "name": "MAE (Mercado Abierto)",
+    "url": "https://www.mae.com.ar/",
+    "layer": 4,
+    "data_points": [
+      "official_fx_rate",
+      "al30_price",
+      "gd30_price"
+    ],
+    "frequency": "realtime",
+    "format": "html_table",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "byma_merval",
+    "name": "BYMA (Data)",
+    "url": "https://marketdata.byma.com.ar/",
+    "layer": 4,
+    "data_points": [
+      "merval_index",
+      "cedears_index",
+      "market_volume"
+    ],
+    "frequency": "realtime",
+    "format": "api_json",
+    "credibility_tier": "T1",
+    "api_available": true,
+    "scrape_required": false,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "dolarhoy_fx",
+    "name": "Dólar Hoy",
+    "url": "https://dolarhoy.com/cotizaciondolarblue",
+    "layer": 4,
+    "data_points": [
+      "dolar_oficial_compra",
+      "dolar_oficial_venta",
+      "dolar_blue_compra",
+      "dolar_blue_venta",
+      "dolar_mep",
+      "dolar_ccl",
+      "dolar_crypto",
+      "brecha_blue_vs_oficial_pct"
+    ],
+    "frequency": "realtime",
+    "format": "scrape",
+    "credibility_tier": "T3",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Aggregator divergence from venue-level prints.",
+    "active": true,
+    "puller_module": "pullers.fx_rates.FXRatesPuller",
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "rava_adrs",
+    "name": "Rava Bursátil",
+    "url": "https://www.ravabursatil.com/",
+    "layer": 4,
+    "data_points": [
+      "argentine_adrs_ny"
+    ],
+    "frequency": "realtime",
+    "format": "html_table",
+    "credibility_tier": "T3",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Display normalization vs exchange tape.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "ppi_ons",
+    "name": "PPI ONs",
+    "url": "https://www.portfoliopersonal.com/Cotizaciones/Ons",
+    "layer": 4,
+    "data_points": [
+      "corporate_bond_secondary_quotes"
+    ],
+    "frequency": "realtime",
+    "format": "html_table",
+    "credibility_tier": "T3",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Broker quote depth and display limitations.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "byma_cauciones",
+    "name": "BYMA Cauciones",
+    "url": "https://www.byma.com.ar/productos/productos-financieros/cauciones/",
+    "layer": 4,
+    "data_points": [
+      "caucion_1d_rate",
+      "caucion_7d_rate"
+    ],
+    "frequency": "daily",
+    "format": "html_table",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "rava_cedears",
+    "name": "Rava CEDEARs",
+    "url": "https://www.ravabursatil.com/cotizaciones/cedears.php",
+    "layer": 4,
+    "data_points": [
+      "cedear_premium_vs_adr"
+    ],
+    "frequency": "realtime",
+    "format": "html_table",
+    "credibility_tier": "T3",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Display normalization vs tradable prints.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "boletin_oficial",
+    "name": "Boletín Oficial",
+    "url": "https://www.boletinoficial.gob.ar/",
+    "layer": 5,
+    "data_points": [
+      "new_laws",
+      "decrees",
+      "tax_changes"
+    ],
+    "frequency": "daily",
+    "format": "pdf",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "bcra_communications",
+    "name": "BCRA Comunicaciones",
+    "url": "https://www.bcra.gob.ar/PublicacionesEstadisticas/Comunicaciones_A.asp",
+    "layer": 5,
+    "data_points": [
+      "cepo_rule_changes",
+      "exchange_control_rules"
+    ],
+    "frequency": "irregular",
+    "format": "pdf",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": false,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "cnv_resoluciones",
+    "name": "CNV Resoluciones",
+    "url": "https://www.argentina.gob.ar/cnv/normativa/resoluciones-generales",
+    "layer": 5,
+    "data_points": [
+      "capital_market_regulations"
+    ],
+    "frequency": "irregular",
+    "format": "html_table",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "casa_rosada",
+    "name": "Casa Rosada",
+    "url": "https://www.casarosada.gob.ar/comunicaciones/",
+    "layer": 5,
+    "data_points": [
+      "presidential_decrees",
+      "official_news"
+    ],
+    "frequency": "irregular",
+    "format": "html_table",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Executive communications framing risk.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "hcdn_proyectos",
+    "name": "HCDN Tracker",
+    "url": "https://www.hcdn.gob.ar/proyectos/index.html",
+    "layer": 5,
+    "data_points": [
+      "bill_status",
+      "bill_text_tracking"
+    ],
+    "frequency": "irregular",
+    "format": "html_table",
+    "credibility_tier": "T1",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": null,
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12"
+  },
+  {
+    "source_id": "fx_rates_dolarhoy",
+    "name": "Dólar Hoy (Legacy ID Alias)",
+    "url": "https://dolarhoy.com/",
+    "layer": 4,
+    "data_points": [
+      "legacy_alias_for_dolarhoy_fx"
+    ],
+    "frequency": "realtime",
+    "format": "scrape",
+    "credibility_tier": "T3",
+    "api_available": false,
+    "scrape_required": true,
+    "known_bias": "Legacy source_id kept for backward compatibility.",
+    "active": false,
+    "puller_module": null,
+    "last_verified": "2026-02-12",
+    "canonical": false
+  }
+]

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chain Tracker · {{ page_title }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/cafe.css') }}">
+</head>
+<body>
+  <!-- Grain overlay -->
+  <div class="grain-overlay"></div>
+
+  <div class="app-layout">
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <h2>Chain<span>Tracker</span></h2>
+        <div class="subtitle">Argentina · Macro</div>
+      </div>
+
+      <div class="sidebar-divider"></div>
+
+      <nav class="sidebar-nav">
+        <a href="{{ url_for('overview') }}" class="{% if page_id == 'overview' %}active{% endif %}">
+          <span>Overview</span>
+        </a>
+        <a href="{{ url_for('chain') }}" class="{% if page_id == 'chain' %}active{% endif %}">
+          <span>Cadena</span>
+        </a>
+        <a href="{{ url_for('sources') }}" class="{% if page_id == 'sources' %}active{% endif %}">
+          <span>Fuentes</span>
+        </a>
+        <a href="{{ url_for('analysts') }}" class="{% if page_id == 'analysts' %}active{% endif %}">
+          <span>Analistas</span>
+        </a>
+        <a href="{{ url_for('history') }}" class="{% if page_id == 'history' %}active{% endif %}">
+          <span>Historia</span>
+        </a>
+        <a href="{{ url_for('brief') }}" class="{% if page_id == 'brief' %}active{% endif %}">
+          <span>Resumen</span>
+        </a>
+        <a href="{{ url_for('feed') }}" class="{% if page_id == 'feed' %}active{% endif %}">
+          <span>Comunidad</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="pipeline-status">
+          <div class="pipeline-dot"></div>
+          <span>{{ pipeline.active }}/{{ pipeline.total }} fuentes · {{ pipeline.last_run }}</span>
+        </div>
+        <div class="user-badge">
+          <div class="user-avatar">{{ user[0]|upper if user else '?' }}</div>
+          <span class="user-name body">{{ user }}</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══ MAIN ═══ -->
+    <main class="main-content">
+      <header class="page-header">
+        <h1>{{ page_title }}</h1>
+        {% if updated is defined and updated %}
+        <div class="header-meta">
+          <div class="date body">{{ updated }}</div>
+          <div class="relative body">{{ updated_rel }}</div>
+        </div>
+        {% endif %}
+      </header>
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

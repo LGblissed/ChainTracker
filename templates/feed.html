@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="feed-container">
+
+  <!-- Compose Box -->
+  <div class="compose-box">
+    <textarea
+      id="composeText"
+      class="compose-textarea body"
+      placeholder="¿Qué estás viendo en el mercado?"
+      rows="3"
+      maxlength="280"
+    ></textarea>
+    <div class="compose-footer">
+      <span class="char-counter mono" id="charCounter">0/280</span>
+      <button class="publish-btn inactive" id="publishBtn">Publicar</button>
+    </div>
+  </div>
+
+  <!-- Feed Items -->
+  <div id="feedList">
+    {% for item in feed %}
+    <div class="feed-item" style="animation-delay: {{ loop.index0 * 60 }}ms">
+      <div class="feed-item-head">
+        <div class="feed-user">
+          <div class="user-avatar">{{ item.user[0]|upper }}</div>
+          <span class="feed-user-name">{{ item.user }}</span>
+        </div>
+        <span class="feed-time">{{ item.timestamp[11:16] if item.timestamp|length > 16 else item.timestamp }}</span>
+      </div>
+      <p class="feed-message">{{ item.message }}</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function() {
+  const textarea = document.getElementById('composeText');
+  const counter = document.getElementById('charCounter');
+  const btn = document.getElementById('publishBtn');
+  const feedList = document.getElementById('feedList');
+
+  function updateUI() {
+    const len = textarea.value.length;
+    counter.textContent = len + '/280';
+    counter.classList.toggle('warn', len > 250);
+
+    if (textarea.value.trim().length >= 2) {
+      btn.className = 'publish-btn active';
+    } else {
+      btn.className = 'publish-btn inactive';
+    }
+  }
+
+  textarea.addEventListener('input', updateUI);
+
+  textarea.addEventListener('focus', function() {
+    this.style.borderColor = 'rgba(196, 168, 130, 0.53)';
+  });
+  textarea.addEventListener('blur', function() {
+    this.style.borderColor = 'rgba(240, 235, 227, 0.53)';
+  });
+
+  function publish() {
+    const msg = textarea.value.trim();
+    if (msg.length < 2) return;
+
+    fetch('/api/feed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        const post = data.post;
+        const time = post.timestamp ? post.timestamp.substring(11, 16) : '';
+
+        const item = document.createElement('div');
+        item.className = 'feed-item';
+        item.style.animation = 'slideIn 0.4s cubic-bezier(.22,.68,0,.98) both';
+
+        const head = document.createElement('div');
+        head.className = 'feed-item-head';
+
+        const userWrap = document.createElement('div');
+        userWrap.className = 'feed-user';
+
+        const avatar = document.createElement('div');
+        avatar.className = 'user-avatar';
+        avatar.textContent = (post.user || '?').charAt(0).toUpperCase();
+
+        const userName = document.createElement('span');
+        userName.className = 'feed-user-name';
+        userName.textContent = post.user || 'Anon';
+
+        const timeNode = document.createElement('span');
+        timeNode.className = 'feed-time';
+        timeNode.textContent = time;
+
+        const messageNode = document.createElement('p');
+        messageNode.className = 'feed-message';
+        messageNode.textContent = post.message || '';
+
+        userWrap.appendChild(avatar);
+        userWrap.appendChild(userName);
+        head.appendChild(userWrap);
+        head.appendChild(timeNode);
+        item.appendChild(head);
+        item.appendChild(messageNode);
+        feedList.prepend(item);
+        textarea.value = '';
+        updateUI();
+      }
+    });
+  }
+
+  btn.addEventListener('click', publish);
+  textarea.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      publish();
+    }
+  });
+})();
+</script>
+{% endblock %}
