@@ -16,26 +16,25 @@
 
     <div class="login-box" id="loginBox">
       <h1 class="login-title display">Chain Tracker</h1>
-      <p class="login-subtitle body">Argentina · Macro Intelligence</p>
+      <p class="login-subtitle body">Argentina - Macro Intelligence</p>
 
-      <!-- Step 1: Password -->
       <div id="stepPassword" style="animation: fadeSlideUp 0.5s ease">
         <div class="login-input-group">
           <input
             type="password"
             id="inputPassword"
             class="login-input login-input-pw mono"
-            placeholder="contraseña"
+            placeholder="contrasena"
             autocomplete="off"
           >
-          <button class="login-submit-pw" id="btnPassword">→</button>
+          <button class="login-submit-pw" id="btnPassword">-&gt;</button>
         </div>
         <p class="login-hint">acceso restringido</p>
+        <p id="loginError" class="login-hint" style="display: none; color: #C17F59;"></p>
       </div>
 
-      <!-- Step 2: Name (hidden initially) -->
       <div id="stepName" style="display: none">
-        <p class="login-name-prompt">¿Cómo te llamamos acá adentro?</p>
+        <p class="login-name-prompt">Como te llamamos aca adentro?</p>
         <div class="login-input-group">
           <input
             type="text"
@@ -63,24 +62,41 @@
       const inputName = document.getElementById('inputName');
       const btnPw = document.getElementById('btnPassword');
       const btnName = document.getElementById('btnName');
+      const loginError = document.getElementById('loginError');
 
-      // Focus password input on load
+      function showError(message) {
+        loginError.textContent = message || 'Error de autenticacion';
+        loginError.style.display = 'block';
+      }
+
+      function clearError() {
+        loginError.textContent = '';
+        loginError.style.display = 'none';
+      }
+
       inputPw.focus();
 
-      // ── Password submit ──
       function submitPassword() {
         const pw = inputPw.value;
-        if (!pw) return;
+        if (!pw) {
+          showError('Ingresa la contrasena.');
+          return;
+        }
+        clearError();
 
         fetch('/api/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({ action: 'password', password: pw })
         })
-        .then(r => r.json())
-        .then(data => {
+        .then(async (r) => {
+          const data = await r.json().catch(() => ({}));
+          return { status: r.status, data: data };
+        })
+        .then((result) => {
+          const data = result.data || {};
           if (data.ok) {
-            // Transition to name step
             box.classList.add('transitioning');
             setTimeout(() => {
               stepPw.style.display = 'none';
@@ -90,12 +106,15 @@
               setTimeout(() => inputName.focus(), 300);
             }, 450);
           } else {
-            // Shake
+            showError(data.error || ('Error ' + result.status));
             stepPw.style.animation = 'shake 0.4s ease';
             inputPw.value = '';
             inputPw.focus();
             setTimeout(() => { stepPw.style.animation = ''; }, 500);
           }
+        })
+        .catch(() => {
+          showError('No se pudo conectar con el servidor.');
         });
       }
 
@@ -104,21 +123,34 @@
         if (e.key === 'Enter') submitPassword();
       });
 
-      // ── Name submit ──
       function submitName() {
         const name = inputName.value.trim();
-        if (name.length < 2) return;
+        if (name.length < 2) {
+          showError('Ingresa un nombre de al menos 2 caracteres.');
+          return;
+        }
+        clearError();
 
         fetch('/api/auth', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
           body: JSON.stringify({ action: 'name', name: name })
         })
-        .then(r => r.json())
-        .then(data => {
+        .then(async (r) => {
+          const data = await r.json().catch(() => ({}));
+          return { status: r.status, data: data };
+        })
+        .then((result) => {
+          const data = result.data || {};
           if (data.ok) {
             window.location.href = '/';
+          } else {
+            showError(data.error || ('Error ' + result.status));
           }
+        })
+        .catch(() => {
+          showError('No se pudo conectar con el servidor.');
         });
       }
 

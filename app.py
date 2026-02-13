@@ -37,6 +37,7 @@ app = Flask(
 )
 APP_PASSWORD = (os.getenv("CHAIN_TRACKER_PASSWORD") or "").strip()
 APP_COOKIE_SECRET = (os.getenv("CHAIN_TRACKER_COOKIE_SECRET") or "").strip()
+SESSION_SECRET_CONFIGURED = bool(APP_COOKIE_SECRET)
 app.secret_key = APP_COOKIE_SECRET or secrets.token_hex(32)
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
@@ -313,16 +314,22 @@ def api_auth():
     action = data.get("action", "")
 
     if action == "password":
-        pw = data.get("password", "")
+        pw = (data.get("password") or "").strip()
         if not APP_PASSWORD:
             return jsonify({"ok": False, "error": "Password not configured on server"}), 500
+        if not SESSION_SECRET_CONFIGURED:
+            return jsonify({"ok": False, "error": "Session secret not configured on server"}), 500
         if pw == APP_PASSWORD:
             session["authenticated"] = True
             return jsonify({"ok": True})
         return jsonify({"ok": False, "error": "Contraseña incorrecta"})
 
     elif action == "name":
-        name = data.get("name", "").strip()
+        name = (data.get("name") or "").strip()
+        if not SESSION_SECRET_CONFIGURED:
+            return jsonify({"ok": False, "error": "Session secret not configured on server"}), 500
+        if not session.get("authenticated"):
+            return jsonify({"ok": False, "error": "Sesión expirada. Reintenta la contraseña."}), 401
         if len(name) >= 2 and session.get("authenticated"):
             session["display_name"] = name
             return jsonify({"ok": True})
