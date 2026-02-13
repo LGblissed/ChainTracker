@@ -8,6 +8,7 @@ import sys
 from pullers.bcra_reserves import BCRAReservesPuller
 from pullers.fx_rates import FXRatesPuller
 from pullers.us_yields import USYieldsPuller
+from scripts.generate_daily_package import generate_daily_package
 from scripts.validate_config import run_validator
 
 
@@ -29,6 +30,7 @@ def _parse_args() -> argparse.Namespace:
 
 def _run_pulls() -> int:
     """Run all configured pullers sequentially and print summary."""
+    project_root = Path(__file__).resolve().parent
     date_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     print(f"=== Argentina Chain Tracker - {date_str} ===")
 
@@ -63,6 +65,17 @@ def _run_pulls() -> int:
     ok_count = sum(1 for item in results if item.get("status") == "ok")
     issue_count = len(results) - ok_count
     print(f"\n=== Complete: {ok_count} ok, {issue_count} issues ===")
+
+    print("Generating daily package...")
+    try:
+        package_result = generate_daily_package(project_root=project_root, date_str=date_str)
+        package_status = package_result.get("status", "unknown")
+        print(f"  Package status: {package_status}")
+        for warning in package_result.get("warnings", []):
+            print(f"  Package warning: {warning}")
+    except Exception as exc:
+        print(f"  Package ERROR: {exc}")
+
     return 0
 
 
