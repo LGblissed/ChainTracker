@@ -1,0 +1,52 @@
+name: Daily Data Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 08:15 Argentina (UTC-3) daily
+    - cron: "15 11 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create runtime env for pullers
+        run: |
+          cat <<EOF > .env
+          FRED_API_KEY=${{ secrets.FRED_API_KEY }}
+          CHAIN_TRACKER_PASSWORD=ci-runner-password
+          CHAIN_TRACKER_COOKIE_SECRET=ci-runner-cookie-secret
+          EOF
+
+      - name: Pull daily data
+        run: python runner.py
+
+      - name: Keep recent date snapshots only
+        run: python scripts/trim_data_history.py --keep-days 21
+
+      - name: Commit and push data updates
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f data/
+          if git diff --cached --quiet; then
+            echo "No data changes to commit."
+            exit 0
+          fi
+          stamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          git commit -m "data: daily refresh ${stamp}"
+          git push

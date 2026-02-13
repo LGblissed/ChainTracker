@@ -85,7 +85,28 @@ def compute_pipeline_status():
     """Compute pipeline status from pull log."""
     log_path = LOGS_DIR / "pull_log.jsonl"
     if not log_path.exists():
-        return {"active": 0, "total": 33, "last_run": "—"}
+        # Fallback for environments where logs are not persisted.
+        last_run = "—"
+        latest_date = get_latest_date()
+        if latest_date:
+            date_dir = DATA_DIR / latest_date
+            pulled_times = []
+            for source_id in ["fx_rates_dolarhoy", "bcra_reserves", "fred_us_yields"]:
+                payload = load_json(date_dir / f"{source_id}.json")
+                pulled_at = payload.get("pulled_at_utc")
+                if isinstance(pulled_at, str) and pulled_at:
+                    pulled_times.append(pulled_at)
+            if pulled_times:
+                try:
+                    dt = max(datetime.fromisoformat(item.replace("Z", "+00:00")) for item in pulled_times)
+                    last_run = dt.strftime("%H:%M")
+                except ValueError:
+                    last_run = "—"
+
+        registry = load_json(CONFIG_DIR / "source_registry.json")
+        total = len(registry) if isinstance(registry, list) else 33
+        active = sum(1 for s in registry if isinstance(s, dict) and s.get("active"))
+        return {"active": active, "total": total, "last_run": last_run}
 
     last_run = "—"
     sources_seen = set()
@@ -121,7 +142,13 @@ def get_overview_data():
     """Load all data needed for the Overview page."""
     date = get_latest_date()
     if not date:
-        return {"has_data": False, "date": None}
+        return {
+            "has_data": False,
+            "date": None,
+            "pipeline": compute_pipeline_status(),
+            "updated": "",
+            "updated_rel": "",
+        }
 
     date_dir = DATA_DIR / date
 
