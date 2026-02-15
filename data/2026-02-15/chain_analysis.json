@@ -1,0 +1,69 @@
+{
+  "date": "2026-02-15",
+  "generated_at_utc": "2026-02-15T11:34:27Z",
+  "chain_state": [
+    {
+      "layer": 1,
+      "layer_name": "Global",
+      "status": "neutral",
+      "label": "sin datos",
+      "description": "No hay lectura de yields globales en el corte actual."
+    },
+    {
+      "layer": 2,
+      "layer_name": "Transmision",
+      "status": "neutral",
+      "label": "estable",
+      "description": "Reservas sin cambio 0 M hasta USD 11 M."
+    },
+    {
+      "layer": 3,
+      "layer_name": "Monetario",
+      "status": "neutral",
+      "label": "estable",
+      "description": "Base monetaria sin cambio 0 M y queda en ARS 11 M."
+    },
+    {
+      "layer": 4,
+      "layer_name": "Mercados",
+      "status": "neutral",
+      "label": "sin datos",
+      "description": "No hay brecha disponible para lectura de mercado local."
+    },
+    {
+      "layer": 5,
+      "layer_name": "Regulatorio",
+      "status": "neutral",
+      "label": "manual",
+      "description": "Sin ingesta automatica regulatoria todavia. Revisar Boletin Oficial y BCRA manualmente."
+    }
+  ],
+  "daily_changes": [
+    {
+      "type": "eq",
+      "label": "Reservas",
+      "detail": "USD 11 -> 11 M (0 M)"
+    }
+  ],
+  "previous_day": {
+    "dolar_blue_venta": null,
+    "dolar_oficial_venta": null,
+    "dolar_mep": null,
+    "dolar_ccl": null,
+    "brecha_pct": null,
+    "reservas_usd_mm": 11.0,
+    "base_monetaria_ars_mm": 11.0,
+    "us_2y_yield": null,
+    "us_10y_yield": null,
+    "us_30y_yield": null
+  },
+  "sparklines": {
+    "reserves_30d": [
+      10.0,
+      11.0,
+      11.0
+    ],
+    "brecha_90d": [],
+    "yields_10y_30d": []
+  }
+}
