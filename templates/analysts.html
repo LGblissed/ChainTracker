@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="insight-layout">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Mapa de analistas</h2>
+      <p>Perfiles de referencia para contraste de tesis y sesgos.</p>
+    </div>
+    <div class="analyst-grid">
+      {% for analyst in analysts %}
+      <article class="analyst-card">
+        <h3>{{ analyst.name }}</h3>
+        <div class="analyst-affiliation">{{ analyst.affiliation if analyst.affiliation else "Independiente" }}</div>
+        <p>{{ analyst.background }}</p>
+        <div class="tag-row">
+          {% for item in analyst.specialty %}
+          <span class="tag">{{ item }}</span>
+          {% endfor %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

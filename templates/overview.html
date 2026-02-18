@@ -276,6 +276,18 @@
     {% endif %}
   </div>
 
+  <div class="card span-full delay-6">
+    <div class="card-head">
+      <span class="card-title">Salud de Fuentes Activas</span>
+    </div>
+    <div class="source-health-inline">
+      <div class="health-pill health-ok">OK: {{ source_health.summary.ok }}</div>
+      <div class="health-pill health-missing">Sin archivo: {{ source_health.summary.missing }}</div>
+      <div class="health-pill health-error">Error: {{ source_health.summary.error }}</div>
+      <a href="{{ url_for('sources') }}" class="brief-link body">Abrir diagnóstico completo</a>
+    </div>
+  </div>
+
 </div>
 {% endif %}
 {% endblock %}

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
@@ -10,11 +10,9 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/cafe.css') }}">
 </head>
 <body>
-  <!-- Grain overlay -->
   <div class="grain-overlay"></div>
 
   <div class="app-layout">
-    <!-- ═══ SIDEBAR ═══ -->
     <aside class="sidebar">
       <div class="sidebar-logo">
         <h2>Chain<span>Tracker</span></h2>
@@ -24,27 +22,14 @@
       <div class="sidebar-divider"></div>
 
       <nav class="sidebar-nav">
-        <a href="{{ url_for('overview') }}" class="{% if page_id == 'overview' %}active{% endif %}">
-          <span>Overview</span>
-        </a>
-        <a href="{{ url_for('chain') }}" class="{% if page_id == 'chain' %}active{% endif %}">
-          <span>Cadena</span>
-        </a>
-        <a href="{{ url_for('sources') }}" class="{% if page_id == 'sources' %}active{% endif %}">
-          <span>Fuentes</span>
-        </a>
-        <a href="{{ url_for('analysts') }}" class="{% if page_id == 'analysts' %}active{% endif %}">
-          <span>Analistas</span>
-        </a>
-        <a href="{{ url_for('history') }}" class="{% if page_id == 'history' %}active{% endif %}">
-          <span>Historia</span>
-        </a>
-        <a href="{{ url_for('brief') }}" class="{% if page_id == 'brief' %}active{% endif %}">
-          <span>Resumen</span>
-        </a>
-        <a href="{{ url_for('feed') }}" class="{% if page_id == 'feed' %}active{% endif %}">
-          <span>Comunidad</span>
-        </a>
+        <a href="{{ url_for('overview') }}" class="{% if page_id == 'overview' %}active{% endif %}"><span>Panel</span></a>
+        <a href="{{ url_for('chain') }}" class="{% if page_id == 'chain' %}active{% endif %}"><span>Cadena</span></a>
+        <a href="{{ url_for('sources') }}" class="{% if page_id == 'sources' %}active{% endif %}"><span>Fuentes</span></a>
+        <a href="{{ url_for('analysts') }}" class="{% if page_id == 'analysts' %}active{% endif %}"><span>Analistas</span></a>
+        <a href="{{ url_for('history') }}" class="{% if page_id == 'history' %}active{% endif %}"><span>Historia</span></a>
+        <a href="{{ url_for('brief') }}" class="{% if page_id == 'brief' %}active{% endif %}"><span>Resumen</span></a>
+        <a href="{{ url_for('research') }}" class="{% if page_id == 'research' %}active{% endif %}"><span>Investigación</span></a>
+        <a href="{{ url_for('feed') }}" class="{% if page_id == 'feed' %}active{% endif %}"><span>Comunidad</span></a>
       </nav>
 
       <div class="sidebar-footer">
@@ -59,7 +44,6 @@
       </div>
     </aside>
 
-    <!-- ═══ MAIN ═══ -->
     <main class="main-content">
       <header class="page-header">
         <h1>{{ page_title }}</h1>

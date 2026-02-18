@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="insight-layout">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Estado de la cadena macro</h2>
+      <p>Lectura por capas con foco en detección temprana de presión.</p>
+    </div>
+    <div class="chain-stack">
+      {% for layer in chain %}
+      <article class="layer-item layer-{{ layer.status }}">
+        <div class="layer-top">
+          <div class="layer-title">{{ layer.layer_name }}</div>
+          <div class="layer-label">{{ layer.label }}</div>
+        </div>
+        <p>{{ layer.description }}</p>
+      </article>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Cobertura por capa</h2>
+      <p>Conecta diagnóstico de señal con el estado de ingestión.</p>
+    </div>
+    <div class="layer-rollup-grid">
+      {% for row in source_rollup %}
+      <div class="rollup-card">
+        <div class="rollup-title">Capa {{ row.layer }}</div>
+        <div class="rollup-main">{{ row.ok }}/{{ row.active }} activas OK</div>
+        <div class="rollup-sub">Total fuentes: {{ row.total }} · pendientes/error: {{ row.missing_or_error }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Cambios diarios</h2>
+      <p>Resumen de variaciones frente al corte previo.</p>
+    </div>
+    <div class="simple-list">
+      {% for c in changes %}
+      <div class="simple-row">
+        <div class="simple-label">{{ c.label }}</div>
+        <div class="simple-value">{{ c.detail }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

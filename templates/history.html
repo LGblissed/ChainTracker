@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="insight-layout">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Historial de cortes</h2>
+      <p>Serie diaria de variables centrales para auditoría operativa.</p>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Blue</th>
+            <th>Oficial</th>
+            <th>Brecha %</th>
+            <th>Reservas (USD M)</th>
+            <th>US 10Y</th>
+            <th>Estado feeds</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in history_rows %}
+          <tr>
+            <td>{{ row.date }}</td>
+            <td>{{ row.blue|fmt_ar(0) if row.blue is not none else "—" }}</td>
+            <td>{{ row.oficial|fmt_ar(0) if row.oficial is not none else "—" }}</td>
+            <td>{{ row.brecha|fmt_ar(1) if row.brecha is not none else "—" }}</td>
+            <td>{{ row.reservas|fmt_ar(0) if row.reservas is not none else "—" }}</td>
+            <td>{{ row.us10y|fmt_ar(2) if row.us10y is not none else "—" }}</td>
+            <td>{{ row.fx_status }}/{{ row.res_status }}/{{ row.yld_status }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

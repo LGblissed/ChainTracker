@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="insight-layout">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Resumen operativo del día</h2>
+      <p>Síntesis automática de las fuentes activas.</p>
+    </div>
+    {% if brief %}
+    <div class="brief-text body">{{ brief|safe }}</div>
+    {% else %}
+    <div class="empty-note">No hay brief generado para el corte actual.</div>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Cobertura por capa</h2>
+    </div>
+    <div class="layer-rollup-grid">
+      {% for row in source_rollup %}
+      <div class="rollup-card">
+        <div class="rollup-title">Capa {{ row.layer }}</div>
+        <div class="rollup-main">{{ row.ok }}/{{ row.active }} activas OK</div>
+        <div class="rollup-sub">Faltantes/error: {{ row.missing_or_error }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

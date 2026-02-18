@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="insight-layout">
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Estado de fuentes</h2>
+      <p>Diagnóstico de datos no recibidos en fuentes activas.</p>
+    </div>
+    <div class="kpi-row">
+      <div class="kpi-tile">
+        <div class="kpi-label">Activas</div>
+        <div class="kpi-value">{{ source_health.summary.active_total }}</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">OK</div>
+        <div class="kpi-value kpi-ok">{{ source_health.summary.ok }}</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Sin archivo</div>
+        <div class="kpi-value kpi-warn">{{ source_health.summary.missing }}</div>
+      </div>
+      <div class="kpi-tile">
+        <div class="kpi-label">Error</div>
+        <div class="kpi-value kpi-bad">{{ source_health.summary.error }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Inventario</h2>
+      <p>Corte: {{ source_health.latest_date if source_health.latest_date else "sin fecha" }}</p>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Fuente</th>
+            <th>Capa</th>
+            <th>Tier</th>
+            <th>Activa</th>
+            <th>Estado</th>
+            <th>Último pull</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in source_health.rows %}
+          <tr>
+            <td>{{ row.name }}</td>
+            <td>{{ row.layer }}</td>
+            <td>{{ row.tier }}</td>
+            <td>{{ "Sí" if row.active else "No" }}</td>
+            <td><span class="status-pill status-{{ row.status }}">{{ row.status }}</span></td>
+            <td>{{ row.pulled_at_utc if row.pulled_at_utc else "—" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="insight-layout">
+  <section class="panel panel-hero">
+    <div class="panel-head">
+      <h2>{{ research.title if research else "Research integrado" }}</h2>
+      <p>Integración de tus dos deep research en formato de lectura operativa.</p>
+    </div>
+    {% if research and research.documents %}
+    <div class="doc-grid">
+      {% for doc in research.documents %}
+      <article class="doc-card">
+        <div class="doc-title">{{ doc.display_name }}</div>
+        <div class="doc-meta">{{ doc.source_file }} · {{ doc.type|upper }}</div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+
+  {% if research and research.resumen_es %}
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Resumen ejecutivo en español</h2>
+    </div>
+    <ul class="read-list">
+      {% for item in research.resumen_es.contexto %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </section>
+
+  <section class="panel split-2">
+    <div>
+      <h3 class="subhead">Top 5 Argentina</h3>
+      <ul class="read-list">
+        {% for item in research.resumen_es.tesis_argentina_top5 %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h3 class="subhead">Top 5 Crypto</h3>
+      <ul class="read-list">
+        {% for item in research.resumen_es.tesis_crypto_top5 %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+
+  <section class="panel split-2">
+    <div>
+      <h3 class="subhead">Drivers clave</h3>
+      <ul class="read-list">
+        {% for item in research.resumen_es.drivers_clave %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h3 class="subhead">Señales de alerta</h3>
+      <ul class="read-list">
+        {% for item in research.resumen_es.senal_de_alerta %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% else %}
+  <section class="panel">
+    <div class="empty-note">No se encontró `config/research_digest.json`.</div>
+  </section>
+  {% endif %}
+
+  <section class="panel">
+    <div class="panel-head">
+      <h2>Cobertura de datos del dashboard</h2>
+    </div>
+    <div class="layer-rollup-grid">
+      {% for row in source_rollup %}
+      <div class="rollup-card">
+        <div class="rollup-title">Capa {{ row.layer }}</div>
+        <div class="rollup-main">{{ row.ok }}/{{ row.active }} activas OK</div>
+        <div class="rollup-sub">Pendientes/error: {{ row.missing_or_error }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

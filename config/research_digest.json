@@ -1,0 +1,68 @@
+{
+  "generated_at_utc": "2026-02-18T01:17:03Z",
+  "locale": "es-AR",
+  "title": "Research Integrado Argentina + Crypto",
+  "documents": [
+    {
+      "id": "deepresearch_pdf",
+      "display_name": "DeepResearch (PDF)",
+      "source_file": "DeepResearch.pdf",
+      "type": "pdf",
+      "stats": {
+        "lineas_extraidas": 2493
+      }
+    },
+    {
+      "id": "argentina_crypto_docx",
+      "display_name": "Argentina+CryptoAnalisis (DOCX)",
+      "source_file": "Argentina+CryptoAnalisis.docx",
+      "type": "docx",
+      "stats": {
+        "parrafos_extraidos": 1129
+      }
+    }
+  ],
+  "resumen_es": {
+    "contexto": [
+      "Argentina atraviesa un programa de estabilizacion macro con superavit primario y desaceleracion inflacionaria respecto de 2023.",
+      "El acuerdo con FMI y la flexibilizacion parcial de controles cambiarios mejoraron reservas y visibilidad de corto/mediano plazo.",
+      "La volatilidad politica y de regimen para 2026 sigue siendo el principal riesgo binario para activos argentinos."
+    ],
+    "tesis_argentina_top5": [
+      "Vista Energy (VIST)",
+      "Grupo Financiero Galicia (GGAL)",
+      "BBVA Argentina (BBAR)",
+      "Pampa Energia (PAM)",
+      "Loma Negra (LOMA)"
+    ],
+    "tesis_crypto_top5": [
+      "Bitcoin (BTC)",
+      "Ethereum (ETH)",
+      "Solana (SOL)",
+      "Hyperliquid (HYPE)",
+      "Chainlink (LINK)"
+    ],
+    "drivers_clave": [
+      "Trayectoria de inflacion y sostenibilidad fiscal local.",
+      "Pendiente del tipo de cambio y nivel de brecha.",
+      "Flujos ETF spot, liquidez global y sesgo de la Fed.",
+      "Riesgo electoral argentino de octubre 2026."
+    ],
+    "senal_de_alerta": [
+      "Aceleracion sostenida de brecha y perdida de reservas.",
+      "Suba abrupta de tasas reales en EE.UU. y fortalecimiento del DXY.",
+      "Deterioro de flujo institucional a ETF crypto.",
+      "Quiebre de disciplina fiscal o retorno de controles extremos."
+    ]
+  },
+  "notas_metodologicas": {
+    "secciones_detectadas": {
+      "executive_summary": 4,
+      "methodology": 8,
+      "argentina_map": 9,
+      "crypto_map": 9,
+      "red_team": 7
+    },
+    "criterio": "Se priorizó síntesis operativa en español preservando estructura del research original."
+  }
+}

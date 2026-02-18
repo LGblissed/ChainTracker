@@ -76,8 +76,8 @@ def run() -> int:
     resp = client.get("/")
     if resp.status_code != 200:
         return _fail(f"GET / (authenticated) expected 200, got {resp.status_code}")
-    if b"Overview" not in resp.data:
-        return _fail("GET / (authenticated) missing expected marker 'Overview'")
+    if b"Panel" not in resp.data:
+        return _fail("GET / (authenticated) missing expected marker 'Panel'")
     print("[PASS] overview renders after auth")
 
     # 6) Feed endpoints should be reachable.
@@ -98,4 +98,3 @@ def run() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(run())
-

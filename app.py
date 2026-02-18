@@ -8,6 +8,7 @@ import html
 import json
 import os
 import secrets
+from collections import defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -136,6 +137,143 @@ def compute_pipeline_status():
             pass
 
     return {"active": active, "total": total, "last_run": last_run}
+
+
+def compute_source_health():
+    """Build active-source health status, including missing files."""
+    latest_date = get_latest_date()
+    date_dir = DATA_DIR / latest_date if latest_date else None
+    registry = load_json(CONFIG_DIR / "source_registry.json")
+    if not isinstance(registry, list):
+        registry = []
+
+    file_aliases = {
+        "dolarhoy_fx": "fx_rates_dolarhoy.json",
+        "fx_rates_dolarhoy": "fx_rates_dolarhoy.json",
+    }
+    status_rows = []
+    summary = {"active_total": 0, "ok": 0, "missing": 0, "error": 0}
+
+    for source in registry:
+        if not isinstance(source, dict):
+            continue
+        source_id = source.get("source_id", "")
+        active = bool(source.get("active"))
+        if active:
+            summary["active_total"] += 1
+        payload = {}
+        filename = file_aliases.get(source_id, f"{source_id}.json")
+        if date_dir and (date_dir / filename).exists():
+            payload = load_json(date_dir / filename)
+
+        status = "missing"
+        if payload:
+            status = payload.get("status", "error") or "error"
+            if status not in {"ok", "error"}:
+                status = "error"
+
+        if active:
+            if status == "ok":
+                summary["ok"] += 1
+            elif status == "missing":
+                summary["missing"] += 1
+            else:
+                summary["error"] += 1
+
+        status_rows.append(
+            {
+                "source_id": source_id,
+                "name": source.get("name", source_id),
+                "layer": source.get("layer"),
+                "tier": source.get("credibility_tier", "—"),
+                "active": active,
+                "status": status,
+                "last_verified": source.get("last_verified", ""),
+                "pulled_at_utc": payload.get("pulled_at_utc", ""),
+                "url": source.get("url", ""),
+                "known_bias": source.get("known_bias"),
+                "data_points": source.get("data_points", []),
+            }
+        )
+
+    status_rows.sort(key=lambda row: (not row["active"], row.get("layer") or 99, row["name"].lower()))
+    return {"summary": summary, "rows": status_rows, "latest_date": latest_date}
+
+
+def load_research_digest():
+    """Load generated research digest if available."""
+    payload = load_json(CONFIG_DIR / "research_digest.json")
+    if not isinstance(payload, dict):
+        payload = {}
+    return payload
+
+
+def load_analyst_registry():
+    """Load analyst registry for analyst page."""
+    payload = load_json(CONFIG_DIR / "analyst_registry.json")
+    if not isinstance(payload, list):
+        return []
+    return [item for item in payload if isinstance(item, dict)]
+
+
+def get_history_rows(limit=120):
+    """Build historical rows from available date snapshots."""
+    rows = []
+    if not DATA_DIR.exists():
+        return rows
+
+    date_dirs = sorted(
+        [item for item in DATA_DIR.iterdir() if item.is_dir() and item.name[:4].isdigit()],
+        key=lambda item: item.name,
+        reverse=True,
+    )
+
+    for date_dir in date_dirs[:limit]:
+        fx_raw = load_json(date_dir / "fx_rates_dolarhoy.json")
+        res_raw = load_json(date_dir / "bcra_reserves.json")
+        yld_raw = load_json(date_dir / "fred_us_yields.json")
+
+        fx = fx_raw.get("data", {}) if isinstance(fx_raw.get("data"), dict) else {}
+        reserves = res_raw.get("data", {}) if isinstance(res_raw.get("data"), dict) else {}
+        yields = yld_raw.get("data", {}) if isinstance(yld_raw.get("data"), dict) else {}
+
+        rows.append(
+            {
+                "date": date_dir.name,
+                "blue": fx.get("dolar_blue_venta"),
+                "oficial": fx.get("dolar_oficial_venta"),
+                "brecha": fx.get("brecha_blue_vs_oficial_pct"),
+                "reservas": reserves.get("reservas_internacionales_usd_mm"),
+                "us10y": yields.get("us_10y_yield"),
+                "fx_status": fx_raw.get("status", "missing"),
+                "res_status": res_raw.get("status", "missing"),
+                "yld_status": yld_raw.get("status", "missing"),
+            }
+        )
+
+    return rows
+
+
+def get_layer_rollup():
+    """Summarize source coverage by layer for quick diagnostics."""
+    source_health = compute_source_health()
+    grouped = defaultdict(lambda: {"total": 0, "active": 0, "ok": 0, "missing_or_error": 0})
+    for row in source_health["rows"]:
+        layer = row.get("layer") or 0
+        grouped[layer]["total"] += 1
+        if row.get("active"):
+            grouped[layer]["active"] += 1
+            if row.get("status") == "ok":
+                grouped[layer]["ok"] += 1
+            else:
+                grouped[layer]["missing_or_error"] += 1
+
+    result = []
+    for layer in sorted(grouped):
+        item = grouped[layer]
+        item["layer"] = layer
+        result.append(item)
+    return result
 
 
 def get_overview_data():
@@ -306,6 +444,17 @@ def get_overview_data():
     }
 
 
+def get_base_page_context():
+    """Common context values shared by most pages."""
+    overview = get_overview_data()
+    return {
+        "pipeline": overview.get("pipeline", compute_pipeline_status()),
+        "updated": overview.get("updated", ""),
+        "updated_rel": overview.get("updated_rel", ""),
+        "date": overview.get("date"),
+    }
+
+
 # ═══════════════════════════════════════════════════════════════
 #  AUTH HELPERS
 # ═══════════════════════════════════════════════════════════════
@@ -379,53 +528,64 @@ def overview():
     return render_template(
         "overview.html",
         page_id="overview",
-        page_title="Overview",
+        page_title="Panel",
         user=session.get("display_name", ""),
+        source_health=compute_source_health(),
         **data,
     )
 
 
 @app.route("/chain")
 def chain():
+    overview = get_overview_data()
     return render_template(
-        "placeholder.html",
+        "chain.html",
         page_id="chain",
         page_title="Cadena",
         user=session.get("display_name", ""),
-        pipeline=compute_pipeline_status(),
+        chain=overview.get("chain", []),
+        changes=overview.get("changes", []),
+        source_rollup=get_layer_rollup(),
+        **get_base_page_context(),
     )
 
 
 @app.route("/sources")
 def sources():
+    source_health = compute_source_health()
     return render_template(
-        "placeholder.html",
+        "sources.html",
         page_id="sources",
         page_title="Fuentes",
         user=session.get("display_name", ""),
-        pipeline=compute_pipeline_status(),
+        source_health=source_health,
+        **get_base_page_context(),
     )
 
 
 @app.route("/analysts")
 def analysts():
+    analysts_data = load_analyst_registry()
     return render_template(
-        "placeholder.html",
+        "analysts.html",
         page_id="analysts",
         page_title="Analistas",
         user=session.get("display_name", ""),
-        pipeline=compute_pipeline_status(),
+        analysts=analysts_data,
+        **get_base_page_context(),
     )
 
 
 @app.route("/history")
 def history():
+    rows = get_history_rows()
     return render_template(
-        "placeholder.html",
+        "history.html",
         page_id="history",
         page_title="Historia",
         user=session.get("display_name", ""),
-        pipeline=compute_pipeline_status(),
+        history_rows=rows,
+        **get_base_page_context(),
     )
 
 
@@ -436,12 +596,27 @@ def brief():
     if date:
         brief_html = load_markdown_file(DATA_DIR / date / "daily_brief.md")
     return render_template(
-        "placeholder.html",
+        "brief.html",
         page_id="brief",
         page_title="Resumen",
         user=session.get("display_name", ""),
-        pipeline=compute_pipeline_status(),
         brief=brief_html,
+        source_rollup=get_layer_rollup(),
+        **get_base_page_context(),
+    )
+
+
+@app.route("/research")
+def research():
+    digest = load_research_digest()
+    return render_template(
+        "research.html",
+        page_id="research",
+        page_title="Investigación",
+        user=session.get("display_name", ""),
+        research=digest,
+        source_rollup=get_layer_rollup(),
+        **get_base_page_context(),
     )
 
 
@@ -455,7 +630,7 @@ def feed():
         page_id="feed",
         page_title="Comunidad",
         user=session.get("display_name", ""),
-        pipeline=compute_pipeline_status(),
+        **get_base_page_context(),
         feed=feed_data,
     )
 
