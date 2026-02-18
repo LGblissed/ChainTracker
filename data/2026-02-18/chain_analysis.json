@@ -1,0 +1,66 @@
+{
+  "date": "2026-02-18",
+  "generated_at_utc": "2026-02-18T11:53:14Z",
+  "chain_state": [
+    {
+      "layer": 1,
+      "layer_name": "Global",
+      "status": "neutral",
+      "label": "sin datos",
+      "description": "No hay lectura de yields globales en el corte actual."
+    },
+    {
+      "layer": 2,
+      "layer_name": "Transmision",
+      "status": "neutral",
+      "label": "sin datos",
+      "description": "No hay dato de reservas para evaluar transmision."
+    },
+    {
+      "layer": 3,
+      "layer_name": "Monetario",
+      "status": "neutral",
+      "label": "sin datos",
+      "description": "No hay dato de base monetaria para este corte."
+    },
+    {
+      "layer": 4,
+      "layer_name": "Mercados",
+      "status": "neutral",
+      "label": "sin datos",
+      "description": "No hay brecha disponible para lectura de mercado local."
+    },
+    {
+      "layer": 5,
+      "layer_name": "Regulatorio",
+      "status": "neutral",
+      "label": "manual",
+      "description": "Sin ingesta automatica regulatoria todavia. Revisar Boletin Oficial y BCRA manualmente."
+    }
+  ],
+  "daily_changes": [
+    {
+      "type": "eq",
+      "label": "Estado",
+      "detail": "Sin historial suficiente para cambios diarios."
+    }
+  ],
+  "previous_day": {
+    "dolar_blue_venta": null,
+    "dolar_oficial_venta": null,
+    "dolar_mep": null,
+    "dolar_ccl": null,
+    "brecha_pct": null,
+    "reservas_usd_mm": null,
+    "base_monetaria_ars_mm": null,
+    "us_2y_yield": null,
+    "us_10y_yield": null,
+    "us_30y_yield": null
+  },
+  "fallback_from_date": {},
+  "sparklines": {
+    "reserves_30d": [],
+    "brecha_90d": [],
+    "yields_10y_30d": []
+  }
+}

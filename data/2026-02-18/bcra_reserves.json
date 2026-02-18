@@ -1,0 +1,12 @@
+{
+  "source_id": "bcra_reserves",
+  "pulled_at_utc": "2026-02-18T11:53:13Z",
+  "status": "ok",
+  "data": {
+    "reservas_internacionales_usd_mm": 11.0,
+    "base_monetaria_ars_mm": 11.0,
+    "data_date": "2026-02-11"
+  },
+  "errors": [],
+  "raw_response_snippet": "<!DOCTYPE html>\n<html lang=\"es-ES\" prefix=\"og: https://ogp.me/ns#\">\n<head>\n\t<meta charset=\"UTF-8\" />\n<meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\">\n\t<link rel=\"pingback\" href=\"https://www.bcra.gob.ar/xmlrpc.php\" />\n\n\t<script type=\"text/javascript\">\n\t\tdocument.documentElement.className = 'js';\n\t</script>\n\t\n\t<link rel=\"alternate\" hreflang=\"en\" href=\"https://www.bcra.gob.ar/en/statistics-indicators/\" />\n<link rel=\"alternate\" hreflang=\"es\" href=\"https://www.bcra.gob.ar/estadisticas-indicadore"
+}
