@@ -12,6 +12,19 @@ import json
 from pathlib import Path
 from typing import Any, Dict, List
 
+PLAUSIBILITY_RULES = {
+    "dolar_blue_venta": (100.0, 100_000.0),
+    "dolar_oficial_venta": (100.0, 100_000.0),
+    "dolar_mep": (100.0, 100_000.0),
+    "dolar_ccl": (100.0, 100_000.0),
+    "brecha_pct": (-50.0, 500.0),
+    "reservas_usd_mm": (1_000.0, 200_000.0),
+    "base_monetaria_ars_mm": (1_000.0, 1_000_000_000.0),
+    "us_2y_yield": (0.0, 25.0),
+    "us_10y_yield": (0.0, 25.0),
+    "us_30y_yield": (0.0, 25.0),
+}
+
 
 def _utc_now_iso() -> str:
     """Return current UTC timestamp in ISO format ending with Z."""
@@ -49,6 +62,17 @@ def _to_float(value: Any) -> float | None:
         return None
 
 
+def _is_plausible(metric_name: str, value: float | None) -> bool:
+    """Return True when value is inside expected range for metric."""
+    if value is None:
+        return False
+    rule = PLAUSIBILITY_RULES.get(metric_name)
+    if rule is None:
+        return True
+    low, high = rule
+    return low <= value <= high
+
+
 def _format_ar_number(value: float, decimals: int = 2) -> str:
     """Format number with Argentine separators."""
     template = f"{{:,.{decimals}f}}"
@@ -71,7 +95,7 @@ def _read_source_metrics(date_dir: Path) -> Dict[str, Any]:
     reserves = reserves_raw.get("data", {}) if isinstance(reserves_raw.get("data"), dict) else {}
     yields = yields_raw.get("data", {}) if isinstance(yields_raw.get("data"), dict) else {}
 
-    return {
+    result = {
         "dolar_blue_venta": _to_float(fx.get("dolar_blue_venta")),
         "dolar_oficial_venta": _to_float(fx.get("dolar_oficial_venta")),
         "dolar_mep": _to_float(fx.get("dolar_mep")),
@@ -88,6 +112,68 @@ def _read_source_metrics(date_dir: Path) -> Dict[str, Any]:
             yields_raw.get("pulled_at_utc"),
         ],
     }
+    for metric_name in list(PLAUSIBILITY_RULES):
+        if metric_name in result and not _is_plausible(metric_name, result.get(metric_name)):
+            result[metric_name] = None
+    return result
+
+
+def _latest_valid_metric(
+    data_dir: Path,
+    current_date: str,
+    source_file: str,
+    field_name: str,
+    metric_name: str,
+) -> tuple[float | None, str | None]:
+    """Return latest plausible value from historical folders up to current_date."""
+    candidates = sorted(
+        [item for item in data_dir.iterdir() if item.is_dir() and _is_date_folder(item.name) and item.name <= current_date],
+        key=lambda item: item.name,
+        reverse=True,
+    )
+    for date_dir in candidates:
+        payload = _load_json(date_dir / source_file)
+        data = payload.get("data", {}) if isinstance(payload.get("data"), dict) else {}
+        value = _to_float(data.get(field_name))
+        if _is_plausible(metric_name, value):
+            return value, date_dir.name
+    return None, None
+
+
+def _apply_metric_fallbacks(data_dir: Path, date_str: str, snapshot: Dict[str, Any]) -> Dict[str, Any]:
+    """Fill missing/implausible values with latest historical plausible values."""
+    mapping = {
+        "dolar_blue_venta": ("fx_rates_dolarhoy.json", "dolar_blue_venta"),
+        "dolar_oficial_venta": ("fx_rates_dolarhoy.json", "dolar_oficial_venta"),
+        "dolar_mep": ("fx_rates_dolarhoy.json", "dolar_mep"),
+        "dolar_ccl": ("fx_rates_dolarhoy.json", "dolar_ccl"),
+        "brecha_pct": ("fx_rates_dolarhoy.json", "brecha_blue_vs_oficial_pct"),
+        "reservas_usd_mm": ("bcra_reserves.json", "reservas_internacionales_usd_mm"),
+        "base_monetaria_ars_mm": ("bcra_reserves.json", "base_monetaria_ars_mm"),
+        "us_2y_yield": ("fred_us_yields.json", "us_2y_yield"),
+        "us_10y_yield": ("fred_us_yields.json", "us_10y_yield"),
+        "us_30y_yield": ("fred_us_yields.json", "us_30y_yield"),
+    }
+    fallback_info: Dict[str, str] = {}
+
+    for metric_name, (source_file, field_name) in mapping.items():
+        current_value = snapshot.get(metric_name)
+        if _is_plausible(metric_name, current_value):
+            continue
+        fallback_value, fallback_date = _latest_valid_metric(
+            data_dir=data_dir,
+            current_date=date_str,
+            source_file=source_file,
+            field_name=field_name,
+            metric_name=metric_name,
+        )
+        if fallback_value is not None and fallback_date is not None:
+            snapshot[metric_name] = fallback_value
+            fallback_info[metric_name] = fallback_date
+
+    if fallback_info:
+        snapshot["fallback_from_date"] = fallback_info
+    return snapshot
 
 
 def _pct_change(current: float | None, previous: float | None) -> float | None:
@@ -378,7 +464,12 @@ def _collect_sparkline(data_dir: Path, source_file: str, field_name: str, limit:
         payload = _load_json(date_dir / source_file)
         data = payload.get("data", {}) if isinstance(payload.get("data"), dict) else {}
         value = _to_float(data.get(field_name))
-        if value is not None:
+        metric_name = {
+            "reservas_internacionales_usd_mm": "reservas_usd_mm",
+            "brecha_blue_vs_oficial_pct": "brecha_pct",
+            "us_10y_yield": "us_10y_yield",
+        }.get(field_name, field_name)
+        if _is_plausible(metric_name, value):
             points.append(value)
     if len(points) > limit:
         return points[-limit:]
@@ -450,7 +541,10 @@ def generate_daily_package(project_root: Path, date_str: str | None = None) -> D
             previous_date = item
 
     current = _read_source_metrics(date_dir)
+    current = _apply_metric_fallbacks(data_dir=data_dir, date_str=date_str, snapshot=current)
     previous = _read_source_metrics(data_dir / previous_date) if previous_date else {}
+    if previous_date:
+        previous = _apply_metric_fallbacks(data_dir=data_dir, date_str=previous_date, snapshot=previous)
 
     # Ensure the expected keys exist for app calculations.
     previous_day = {
@@ -483,6 +577,7 @@ def generate_daily_package(project_root: Path, date_str: str | None = None) -> D
         "chain_state": chain_state,
         "daily_changes": daily_changes,
         "previous_day": previous_day,
+        "fallback_from_date": current.get("fallback_from_date", {}),
         "sparklines": {
             "reserves_30d": _collect_sparkline(
                 data_dir=data_dir,
@@ -516,6 +611,8 @@ def generate_daily_package(project_root: Path, date_str: str | None = None) -> D
         warnings.append("No previous date snapshot found; day-over-day changes may be incomplete.")
     if current.get("dolar_blue_venta") is None and current.get("reservas_usd_mm") is None and current.get("us_10y_yield") is None:
         warnings.append("No core source metrics were found in today's files.")
+    if current.get("fallback_from_date"):
+        warnings.append("One or more metrics used automatic fallback from last valid date.")
 
     return {
         "status": "ok",
@@ -523,4 +620,3 @@ def generate_daily_package(project_root: Path, date_str: str | None = None) -> D
         "generated_files": ["chain_analysis.json", "daily_brief.md"],
         "warnings": warnings,
     }
-

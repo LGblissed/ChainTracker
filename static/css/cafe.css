@@ -1297,6 +1297,11 @@ body {
   color: #a14d3a;
 }
 
+.status-stale {
+  background: rgba(130, 113, 56, 0.16);
+  color: #7c6b2a;
+}
+
 .simple-list {
   display: grid;
   gap: 8px;

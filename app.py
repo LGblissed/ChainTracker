@@ -71,6 +71,107 @@ def load_json(path):
         return {}
 
 
+PLAUSIBILITY_RULES = {
+    "dolar_blue_venta": (100.0, 100_000.0),
+    "dolar_oficial_venta": (100.0, 100_000.0),
+    "dolar_mep": (100.0, 100_000.0),
+    "dolar_ccl": (100.0, 100_000.0),
+    "brecha_pct": (-50.0, 500.0),
+    "reservas_usd_mm": (1_000.0, 200_000.0),
+    "base_monetaria_ars_mm": (1_000.0, 1_000_000_000.0),
+    "us_2y_yield": (0.0, 25.0),
+    "us_10y_yield": (0.0, 25.0),
+    "us_30y_yield": (0.0, 25.0),
+}
+
+
+def _to_float(value):
+    """Convert input to float safely."""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _is_plausible(metric_name, value):
+    """Return True when metric value is within expected operating bounds."""
+    numeric = _to_float(value)
+    if numeric is None:
+        return False
+    low_high = PLAUSIBILITY_RULES.get(metric_name)
+    if not low_high:
+        return True
+    low, high = low_high
+    return low <= numeric <= high
+
+
+def _latest_valid_metric(date_str, source_file, field_name, metric_name):
+    """Find latest plausible metric value up to the requested date."""
+    if not DATA_DIR.exists():
+        return None, None
+    date_dirs = sorted(
+        [d for d in DATA_DIR.iterdir() if d.is_dir() and d.name[:4].isdigit() and d.name <= date_str],
+        key=lambda d: d.name,
+        reverse=True,
+    )
+    for date_dir in date_dirs:
+        payload = load_json(date_dir / source_file)
+        data = payload.get("data", {}) if isinstance(payload.get("data"), dict) else {}
+        value = _to_float(data.get(field_name))
+        if _is_plausible(metric_name, value):
+            return value, date_dir.name
+    return None, None
+
+
+def _clean_or_fallback_metric(date_str, source_file, field_name, metric_name, raw_value):
+    """Return plausible value, applying historical fallback when needed."""
+    numeric = _to_float(raw_value)
+    if _is_plausible(metric_name, numeric):
+        return numeric, False, date_str
+    fallback_value, fallback_date = _latest_valid_metric(
+        date_str=date_str,
+        source_file=source_file,
+        field_name=field_name,
+        metric_name=metric_name,
+    )
+    if fallback_value is None:
+        return None, False, None
+    return fallback_value, True, fallback_date
+
+
+def _source_payload_has_plausible_core(source_id, payload):
+    """Check whether source payload contains plausible core fields."""
+    data = payload.get("data", {}) if isinstance(payload.get("data"), dict) else {}
+    if source_id in {"fx_rates_dolarhoy", "dolarhoy_fx"}:
+        return (
+            _is_plausible("dolar_oficial_venta", data.get("dolar_oficial_venta"))
+            and _is_plausible("dolar_blue_venta", data.get("dolar_blue_venta"))
+        )
+    if source_id == "bcra_reserves":
+        return _is_plausible("reservas_usd_mm", data.get("reservas_internacionales_usd_mm"))
+    if source_id == "fred_us_yields":
+        return _is_plausible("us_10y_yield", data.get("us_10y_yield"))
+    return True
+
+
+def _source_has_historical_fallback(source_id, latest_date):
+    """Return True when at least one core metric has historical valid fallback."""
+    if not latest_date:
+        return False
+    if source_id in {"fx_rates_dolarhoy", "dolarhoy_fx"}:
+        value, _ = _latest_valid_metric(latest_date, "fx_rates_dolarhoy.json", "dolar_blue_venta", "dolar_blue_venta")
+        return value is not None
+    if source_id == "bcra_reserves":
+        value, _ = _latest_valid_metric(
+            latest_date, "bcra_reserves.json", "reservas_internacionales_usd_mm", "reservas_usd_mm"
+        )
+        return value is not None
+    if source_id == "fred_us_yields":
+        value, _ = _latest_valid_metric(latest_date, "fred_us_yields.json", "us_10y_yield", "us_10y_yield")
+        return value is not None
+    return False
+
+
 def load_markdown_file(path):
     """Load a markdown file and convert to HTML."""
     try:
@@ -171,12 +272,19 @@ def compute_source_health():
             status = payload.get("status", "error") or "error"
             if status not in {"ok", "error"}:
                 status = "error"
+            if not _source_payload_has_plausible_core(source_id, payload):
+                if _source_has_historical_fallback(source_id, latest_date):
+                    status = "stale"
+                elif status == "ok":
+                    status = "error"
 
         if active:
             if status == "ok":
                 summary["ok"] += 1
             elif status == "missing":
                 summary["missing"] += 1
+            elif status == "stale":
+                summary["error"] += 1
             else:
                 summary["error"] += 1
 
@@ -298,9 +406,38 @@ def get_overview_data():
     brief_html = load_markdown_file(date_dir / "daily_brief.md")
 
     # Extract data payloads
-    fx = fx_raw.get("data", {})
-    res = res_raw.get("data", {})
-    yld = yld_raw.get("data", {})
+    fx_data = fx_raw.get("data", {}) if isinstance(fx_raw.get("data"), dict) else {}
+    res_data = res_raw.get("data", {}) if isinstance(res_raw.get("data"), dict) else {}
+    yld_data = yld_raw.get("data", {}) if isinstance(yld_raw.get("data"), dict) else {}
+
+    # Automatic plausibility + fallback (last valid historical value).
+    oficial_now, oficial_stale, oficial_from = _clean_or_fallback_metric(
+        date, "fx_rates_dolarhoy.json", "dolar_oficial_venta", "dolar_oficial_venta", fx_data.get("dolar_oficial_venta")
+    )
+    blue_now, blue_stale, blue_from = _clean_or_fallback_metric(
+        date, "fx_rates_dolarhoy.json", "dolar_blue_venta", "dolar_blue_venta", fx_data.get("dolar_blue_venta")
+    )
+    mep_now, mep_stale, mep_from = _clean_or_fallback_metric(
+        date, "fx_rates_dolarhoy.json", "dolar_mep", "dolar_mep", fx_data.get("dolar_mep")
+    )
+    ccl_now, ccl_stale, ccl_from = _clean_or_fallback_metric(
+        date, "fx_rates_dolarhoy.json", "dolar_ccl", "dolar_ccl", fx_data.get("dolar_ccl")
+    )
+    brecha_now, brecha_stale, brecha_from = _clean_or_fallback_metric(
+        date, "fx_rates_dolarhoy.json", "brecha_blue_vs_oficial_pct", "brecha_pct", fx_data.get("brecha_blue_vs_oficial_pct")
+    )
+    res_now, res_stale, res_from = _clean_or_fallback_metric(
+        date, "bcra_reserves.json", "reservas_internacionales_usd_mm", "reservas_usd_mm", res_data.get("reservas_internacionales_usd_mm")
+    )
+    y2_now, y2_stale, y2_from = _clean_or_fallback_metric(
+        date, "fred_us_yields.json", "us_2y_yield", "us_2y_yield", yld_data.get("us_2y_yield")
+    )
+    y10_now, y10_stale, y10_from = _clean_or_fallback_metric(
+        date, "fred_us_yields.json", "us_10y_yield", "us_10y_yield", yld_data.get("us_10y_yield")
+    )
+    y30_now, y30_stale, y30_from = _clean_or_fallback_metric(
+        date, "fred_us_yields.json", "us_30y_yield", "us_30y_yield", yld_data.get("us_30y_yield")
+    )
 
     # Pipeline status
     pipeline = compute_pipeline_status()
@@ -310,51 +447,60 @@ def get_overview_data():
 
     # FX changes
     blue_prev = prev.get("dolar_blue_venta")
-    blue_now = fx.get("dolar_blue_venta")
+    blue_prev = _to_float(prev.get("dolar_blue_venta"))
+    if not _is_plausible("dolar_blue_venta", blue_prev):
+        blue_prev, _ = _latest_valid_metric(date, "fx_rates_dolarhoy.json", "dolar_blue_venta", "dolar_blue_venta")
     blue_change = None
     if blue_prev and blue_now and blue_prev != 0:
         blue_change = round(((blue_now / blue_prev) - 1) * 100, 1)
 
-    mep_prev = prev.get("dolar_mep")
-    mep_now = fx.get("dolar_mep")
+    mep_prev = _to_float(prev.get("dolar_mep"))
+    if not _is_plausible("dolar_mep", mep_prev):
+        mep_prev, _ = _latest_valid_metric(date, "fx_rates_dolarhoy.json", "dolar_mep", "dolar_mep")
     mep_change = None
     if mep_prev and mep_now and mep_prev != 0:
         mep_change = round(((mep_now / mep_prev) - 1) * 100, 1)
 
-    ccl_prev = prev.get("dolar_ccl")
-    ccl_now = fx.get("dolar_ccl")
+    ccl_prev = _to_float(prev.get("dolar_ccl"))
+    if not _is_plausible("dolar_ccl", ccl_prev):
+        ccl_prev, _ = _latest_valid_metric(date, "fx_rates_dolarhoy.json", "dolar_ccl", "dolar_ccl")
     ccl_change = None
     if ccl_prev and ccl_now and ccl_prev != 0:
         ccl_change = round(((ccl_now / ccl_prev) - 1) * 100, 1)
 
-    brecha_prev = prev.get("brecha_pct")
-    brecha_now = fx.get("brecha_blue_vs_oficial_pct")
+    brecha_prev = _to_float(prev.get("brecha_pct"))
+    if not _is_plausible("brecha_pct", brecha_prev):
+        brecha_prev, _ = _latest_valid_metric(date, "fx_rates_dolarhoy.json", "brecha_blue_vs_oficial_pct", "brecha_pct")
     brecha_change = None
     if brecha_prev is not None and brecha_now is not None:
         brecha_change = round(brecha_now - brecha_prev, 1)
 
     # Reserve changes
-    res_prev = prev.get("reservas_usd_mm")
-    res_now = res.get("reservas_internacionales_usd_mm")
+    res_prev = _to_float(prev.get("reservas_usd_mm"))
+    if not _is_plausible("reservas_usd_mm", res_prev):
+        res_prev, _ = _latest_valid_metric(date, "bcra_reserves.json", "reservas_internacionales_usd_mm", "reservas_usd_mm")
     res_change = None
     if res_prev is not None and res_now is not None:
         res_change = round(res_now - res_prev, 0)
 
     # Yield changes (basis points)
-    y2_prev = prev.get("us_2y_yield")
-    y2_now = yld.get("us_2y_yield")
+    y2_prev = _to_float(prev.get("us_2y_yield"))
+    if not _is_plausible("us_2y_yield", y2_prev):
+        y2_prev, _ = _latest_valid_metric(date, "fred_us_yields.json", "us_2y_yield", "us_2y_yield")
     y2_change = None
     if y2_prev is not None and y2_now is not None:
         y2_change = round((y2_now - y2_prev) * 100, 0)
 
-    y10_prev = prev.get("us_10y_yield")
-    y10_now = yld.get("us_10y_yield")
+    y10_prev = _to_float(prev.get("us_10y_yield"))
+    if not _is_plausible("us_10y_yield", y10_prev):
+        y10_prev, _ = _latest_valid_metric(date, "fred_us_yields.json", "us_10y_yield", "us_10y_yield")
     y10_change = None
     if y10_prev is not None and y10_now is not None:
         y10_change = round((y10_now - y10_prev) * 100, 0)
 
-    y30_prev = prev.get("us_30y_yield")
-    y30_now = yld.get("us_30y_yield")
+    y30_prev = _to_float(prev.get("us_30y_yield"))
+    if not _is_plausible("us_30y_yield", y30_prev):
+        y30_prev, _ = _latest_valid_metric(date, "fred_us_yields.json", "us_30y_yield", "us_30y_yield")
     y30_change = None
     if y30_prev is not None and y30_now is not None:
         y30_change = round((y30_now - y30_prev) * 100, 0)
@@ -375,6 +521,12 @@ def get_overview_data():
     fx_status = fx_raw.get("status", "error")
     res_status = res_raw.get("status", "error")
     yld_status = yld_raw.get("status", "error")
+    if blue_stale or oficial_stale or mep_stale or ccl_stale or brecha_stale:
+        fx_status = "stale"
+    if res_stale:
+        res_status = "stale"
+    if y2_stale or y10_stale or y30_stale:
+        yld_status = "stale"
 
     # Updated timestamp
     pulled_times = [
@@ -405,22 +557,26 @@ def get_overview_data():
         "has_data": True,
         "date": date,
         "fx": {
-            "oficial": fx.get("dolar_oficial_venta"),
-            "blue": fx.get("dolar_blue_venta"),
+            "oficial": oficial_now,
+            "blue": blue_now,
             "blue_change": blue_change,
-            "mep": fx.get("dolar_mep"),
+            "mep": mep_now,
             "mep_change": mep_change,
-            "ccl": fx.get("dolar_ccl"),
+            "ccl": ccl_now,
             "ccl_change": ccl_change,
             "brecha": brecha_now,
             "brecha_change": brecha_change,
             "status": fx_status,
+            "stale": blue_stale or oficial_stale or mep_stale or ccl_stale or brecha_stale,
+            "stale_from": max([d for d in [blue_from, oficial_from, mep_from, ccl_from, brecha_from] if d], default=None),
         },
         "reserves": {
             "value": res_now,
             "change": res_change,
             "sparkline": sparklines.get("reserves_30d", []),
             "status": res_status,
+            "stale": res_stale,
+            "stale_from": res_from,
         },
         "yields": {
             "y2": y2_now,
@@ -433,6 +589,8 @@ def get_overview_data():
             "spread_change": spread_change,
             "sparkline": sparklines.get("yields_10y_30d", []),
             "status": yld_status,
+            "stale": y2_stale or y10_stale or y30_stale,
+            "stale_from": max([d for d in [y2_from, y10_from, y30_from] if d], default=None),
         },
         "chain": chain_raw.get("chain_state", []),
         "changes": chain_raw.get("daily_changes", []),
