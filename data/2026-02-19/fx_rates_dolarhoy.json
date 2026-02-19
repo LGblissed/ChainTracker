@@ -1,0 +1,26 @@
+{
+  "source_id": "fx_rates_dolarhoy",
+  "pulled_at_utc": "2026-02-19T11:52:49Z",
+  "status": "error",
+  "data": {
+    "dolar_oficial_compra": null,
+    "dolar_oficial_venta": null,
+    "dolar_blue_compra": null,
+    "dolar_blue_venta": null,
+    "dolar_mep": null,
+    "dolar_ccl": null,
+    "dolar_crypto": null,
+    "brecha_blue_vs_oficial_pct": null
+  },
+  "errors": [
+    "dolar_oficial_compra not found on page",
+    "dolar_oficial_venta not found on page",
+    "dolar_blue_compra not found on page",
+    "dolar_blue_venta not found on page",
+    "dolar_mep not found on page",
+    "dolar_ccl not found on page",
+    "dolar_crypto not found on page",
+    "Cannot calculate brecha_blue_vs_oficial_pct due to missing official/blue venta"
+  ],
+  "raw_response_snippet": "<!doctype html><html lang=\"es-ar\"><head><meta charset=\"utf-8\"><meta name=\"language\" content=\"es\"><meta name=\"robots\" content=\"index, follow\"><meta name=\"distribution\" content=\"global\"><meta name=\"rating\" content=\"general\"><meta itemprop=\"genre\" content=\"News\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"><meta name=\"twitter:card\" content=\"summary_large_image\"><meta name=\"twitter:site\" content=\"@dolarhoy\"><meta property=\"og"
+}
