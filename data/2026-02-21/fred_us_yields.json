@@ -1,0 +1,15 @@
+{
+  "source_id": "fred_us_yields",
+  "pulled_at_utc": "2026-02-21T11:33:53Z",
+  "status": "error",
+  "data": {
+    "us_2y_yield": null,
+    "us_10y_yield": null,
+    "us_30y_yield": null,
+    "data_date": null
+  },
+  "errors": [
+    "FRED_API_KEY not configured in .env"
+  ],
+  "raw_response_snippet": ""
+}
