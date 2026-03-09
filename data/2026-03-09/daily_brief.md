@@ -1,6 +1,6 @@
 Resumen automatico generado desde fuentes activas (FRED, BCRA, DolarHoy).
 
-Reservas USD 11 M (0 M d/d).
+No hay datos suficientes para resumen numerico hoy.
 
 **Puntos de atencion:**
 - Sin alertas fuertes por reglas automaticas en este corte.
