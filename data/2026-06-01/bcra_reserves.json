@@ -1,0 +1,14 @@
+{
+  "source_id": "bcra_reserves",
+  "pulled_at_utc": "2026-06-01T16:45:30Z",
+  "status": "error",
+  "data": {
+    "reservas_internacionales_usd_mm": null,
+    "base_monetaria_ars_mm": null,
+    "data_date": null
+  },
+  "errors": [
+    "Request failed: 403 Client Error: Forbidden for url: https://www.bcra.gob.ar/PublicacionesEstadisticas/Principales_variables_datos.asp"
+  ],
+  "raw_response_snippet": ""
+}
